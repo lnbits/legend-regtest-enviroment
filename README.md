@@ -11,4 +11,4 @@ Will spin up regtest:
 * mempool
 * boltz
 
-Place this <a href="./docker">docker</a> folder in your <a href="https://github.com/lnbits/lnbits-legend">lnbits-legend</a> install. To run use these <a href="./docker/README.md">instructions</a>
+Just place the <a href="./docker">docker</a> folder in your <a href="https://github.com/lnbits/lnbits-legend">lnbits-legend</a> install. To run use these <a href="./docker/README.md">instructions</a>
