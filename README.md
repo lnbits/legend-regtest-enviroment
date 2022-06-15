@@ -1,5 +1,5 @@
 # legend-regtest-enviroment
-Easy docker LNbits regtest enviroment.
+Useful and easy docker LNbits regtest enviroment.
 
 Will spin up regtest:
 
