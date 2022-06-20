@@ -1,14 +1,45 @@
-# legend-regtest-enviroment
-Useful and easy docker LNbits regtest enviroment.
+# setup
+clone it into your lnbits-legend repository
+```console
+mkdir ~/repos/lnbits-legend/docker
+git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-legend/docker
 
-Will spin up regtest:
+```
+# usage
+```console
+cd ~/repos/lnbits-legend/docker
+source docker-scripts.sh
 
-* lnbits
-* bitcoin-core
-* lnd
-* clightning
-* electrs
-* mempool
-* boltz
+# start docker-compose with logs
+lnbits-regtest-start-log
+# start docker-compose in background
+lnbits-regtest-start
 
-Just place the <a href="./docker">docker</a> folder in your <a href="https://github.com/lnbits/lnbits-legend">lnbits-legend</a> install. To run use these <a href="./docker/README.md">instructions</a>
+# errors on startup are normal! wait at least 60 seconds
+# for all services to come up before you start initializing
+sleep 60
+
+# initialize blockchain,
+# fund lightning wallets
+# connect peers
+# create channels
+# balance channels
+lnbits-regtest-init
+
+# use bitcoin core, mine a block
+bitcoin-cli-sim -generate 1
+
+# use c-lightning nodes
+lightning-cli-sim 1 newaddr # use node 1
+lightning-cli-sim 2 getinfo # use node 2
+lightning-cli-sim 3 getinfo | jq -r '.bech32' # use node 3
+
+# use lnd nodes
+lncli-sim 1 newaddr p2wsh
+lncli-sim 2 listpeers
+```
+
+# lnbits debug log
+```console
+docker logs lnbits-legend-lnbits-1 -f
+```
