@@ -1,4 +1,9 @@
 # setup
+Install `jq`
+```console 
+sudo apt install jq
+```
+
 clone it into your lnbits-legend repository
 ```console
 mkdir ~/repos/lnbits-legend/docker
@@ -30,9 +35,9 @@ lnbits-regtest-init
 bitcoin-cli-sim -generate 1
 
 # use c-lightning nodes
-lightning-cli-sim 1 newaddr # use node 1
+lightning-cli-sim 1 newaddr | jq -r '.bech32' # use node 1
 lightning-cli-sim 2 getinfo # use node 2
-lightning-cli-sim 3 getinfo | jq -r '.bech32' # use node 3
+lightning-cli-sim 3 getinfo # use node 3
 
 # use lnd nodes
 lncli-sim 1 newaddr p2wsh
