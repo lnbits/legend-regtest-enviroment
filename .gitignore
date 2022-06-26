@@ -1,2 +1,4 @@
 .wakatime-project
-data/
+data/*
+!data/electrs/config.toml
+!data/boltz/boltz.toml
