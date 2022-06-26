@@ -41,16 +41,16 @@ connect_clightning_node() {
 
 lnbits-regtest-start(){
   lnbits-regtest-stop
-  docker compose up -d --remove-orphans
+  docker-compose -p $COMPOSE_PROJECT_NAME up -d --remove-orphans
 }
 
 lnbits-regtest-start-log(){
   lnbits-regtest-stop
-  docker compose up --remove-orphans
+  docker-compose -p COMPOSE_PROJECT_NAME up --remove-orphans
 }
 
 lnbits-regtest-stop(){
-  docker compose down --volumes
+  docker-compose -p $COMPOSE_PROJECT_NAME down
   # clean up lightning node data
   sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1 ./data/lnd-2 ./data/boltz/boltz.db
   # recreate lightning node data folders preventing permission errors
