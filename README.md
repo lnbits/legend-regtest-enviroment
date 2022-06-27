@@ -4,6 +4,8 @@ Install `jq`
 sudo apt install jq
 ```
 
+Make sure you have the [docker compose plugin](https://docs.docker.com/compose/install/compose-plugin/) installed. The old Python docker-compose *will not work*.
+
 clone it into your lnbits-legend repository
 ```console
 mkdir ~/repos/lnbits-legend/docker
