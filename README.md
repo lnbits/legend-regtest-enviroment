@@ -39,6 +39,10 @@ lncli-sim 1 newaddr p2wsh
 lncli-sim 2 listpeers
 ```
 
+# urls for lnbits and mempool
+* lnbits: http://localhost:5000/
+* mempool: http://localhost:8080/
+
 # lnbits debug log
 ```console
 docker logs lnbits-legend-lnbits-1 -f
