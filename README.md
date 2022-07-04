@@ -1,3 +1,6 @@
+# requirements
+docker compose v2: https://docs.docker.com/compose/install/compose-plugin/
+
 # setup
 clone it into your lnbits-legend repository
 ```console
