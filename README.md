@@ -1,3 +1,6 @@
+# requirements
+docker compose v2: https://docs.docker.com/compose/install/compose-plugin/
+
 # setup
 clone it into your lnbits-legend repository
 ```console
@@ -43,6 +46,10 @@ lightning-cli-sim 3 getinfo | jq -r '.bech32' # use node 3
 lncli-sim 1 newaddr p2wsh
 lncli-sim 2 listpeers
 ```
+
+# urls for lnbits and mempool
+* lnbits: http://localhost:5000/
+* mempool: http://localhost:8080/
 
 # lnbits debug log
 ```console

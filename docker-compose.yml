@@ -8,6 +8,7 @@ services:
     entrypoint: "sh -c 'sleep 30; uvicorn lnbits.__main__:app --port 5000 --host lnbits --reload'"
     environment:
       HOST: lnbits
+      QUART_DEBUG: true
       LNBITS_BACKEND_WALLET_CLASS: "LndRestWallet"
       LNBITS_DATA_FOLDER: "./data"
       LND_REST_ENDPOINT: "https://lnd-2:8081/"
