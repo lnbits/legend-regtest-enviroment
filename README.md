@@ -1,5 +1,6 @@
 # requirements
-docker compose v2: https://docs.docker.com/compose/install/compose-plugin/
+* docker compose v2: https://docs.docker.com/compose/install/compose-plugin/
+* jq
 
 # setup
 clone it into your lnbits-legend repository
@@ -12,7 +13,6 @@ git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-leg
 ```console
 cd ~/repos/lnbits-legend/docker
 source docker-scripts.sh
-
 
 # build the lnbits docker image
 cd ~/repos/lnbits-legend
@@ -38,9 +38,9 @@ lnbits-regtest-init
 bitcoin-cli-sim -generate 1
 
 # use c-lightning nodes
-lightning-cli-sim 1 newaddr # use node 1
+lightning-cli-sim 1 newaddr | jq -r '.bech32' # use node 1
 lightning-cli-sim 2 getinfo # use node 2
-lightning-cli-sim 3 getinfo | jq -r '.bech32' # use node 3
+lightning-cli-sim 3 getinfo # use node 3
 
 # use lnd nodes
 lncli-sim 1 newaddr p2wsh
