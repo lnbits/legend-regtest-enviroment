@@ -10,6 +10,11 @@ git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-leg
 cd ~/repos/lnbits-legend/docker
 source docker-scripts.sh
 
+
+# build the lnbits docker image
+cd ~/repos/lnbits-legend
+docker build -t lnbits-legend .
+
 # start docker-compose with logs
 lnbits-regtest-start-log
 # start docker-compose in background
