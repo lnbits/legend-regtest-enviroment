@@ -85,12 +85,13 @@ lnbits-regtest-init(){
   balance_size_msat=7000000000 # 0.07 btc
 
   # open channels 1 -> 2, 2 -> 3, 3 -> 1
-  connect_clightning_node 1 3
-  lightning-cli-sim 1 fundchannel -k id=$(connect_clightning_node 1 2 | jq -r '.id') amount=$channel_size push_msat=$balance_size_msat
-  connect_clightning_node 2 1
-  lightning-cli-sim 2 fundchannel -k id=$(connect_clightning_node 2 3 | jq -r '.id') amount=$channel_size push_msat=$balance_size_msat
-  connect_clightning_node 3 2
-  lightning-cli-sim 3 fundchannel -k id=$(connect_clightning_node 3 1 | jq -r '.id') amount=$channel_size push_msat=$balance_size_msat
+  # TODO: quickfix, https://github.com/lnbits/legend-regtest-enviroment/issues/2
+  # connect_clightning_node 1 3
+  # lightning-cli-sim 1 fundchannel -k id=$(connect_clightning_node 1 2 | jq -r '.id') amount=$channel_size push_msat=$balance_size_msat
+  # connect_clightning_node 2 1
+  # lightning-cli-sim 2 fundchannel -k id=$(connect_clightning_node 2 3 | jq -r '.id') amount=$channel_size push_msat=$balance_size_msat
+  # connect_clightning_node 3 2
+  # lightning-cli-sim 3 fundchannel -k id=$(connect_clightning_node 3 1 | jq -r '.id') amount=$channel_size push_msat=$balance_size_msat
 
   # lnd node for boltz
   lncli-sim 1 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@lnbits-legend-clightning-1-1
