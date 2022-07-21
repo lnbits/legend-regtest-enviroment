@@ -1,14 +1,16 @@
 # requirements
 * docker compose v2: https://docs.docker.com/compose/install/compose-plugin/
 * jq
+* curl
 
-# setup
-clone it into your lnbits-legend repository
+# testing
 ```console
-mkdir ~/repos/lnbits-legend/docker
-git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-legend/docker
-
+  chmod +x ./tests
+  ./tests
+  # short answer :)
+  ./tests && echo "PASSED" || echo "FAILED" > /dev/null
 ```
+
 # usage
 ```console
 # build the lnbits docker image
@@ -23,17 +25,6 @@ source docker-scripts.sh
 lnbits-regtest-start-log
 # start docker-compose in background
 lnbits-regtest-start
-
-# errors on startup are normal! wait at least 60 seconds
-# for all services to come up before you start initializing
-sleep 60
-
-# initialize blockchain,
-# fund lightning wallets
-# connect peers
-# create channels
-# balance channels
-lnbits-regtest-init
 
 # use bitcoin core, mine a block
 bitcoin-cli-sim -generate 1
