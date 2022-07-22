@@ -10,5 +10,6 @@ jobs:
           git clone https://github.com/lnbits/lnbits-legend
           cd lnbits-legend
           docker build -t lnbits-legend .
+          cd ..
           chmod +x ./tests
           ./tests
