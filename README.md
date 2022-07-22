@@ -1,4 +1,5 @@
-![TESTS](https://github.com/lnbits/legend-regtest-enviroment/actions/workflows/ci.yml/badge.svg?event=push)
+# test status
+![TESTS](https://github.com/lnbits/legend-regtest-enviroment/actions/workflows/ci.yml/badge.svg)
 
 # requirements
 * docker compose v2: https://docs.docker.com/compose/install/compose-plugin/
