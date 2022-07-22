@@ -2,6 +2,10 @@ version: "3.7"
 services:
   lnbits:
     hostname: lnbits
+    depends_on:
+      - boltz
+      - mempool-api
+      - lnd-2
     image: lnbits-legend
     restart: on-failure
     user: "0:0"
@@ -17,12 +21,14 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ../lnbits:/app/lnbits
+      #- ../lnbits:/app/lnbits
       - lnbits-data:/app/data
       - ./data/lnd-2:/app/lnd:uid=1000,gid=1000
 
   boltz:
     hostname: boltz
+    depends_on:
+      - lnd-1
     image: boltz/backend
     entrypoint: "sh -c 'sleep 40; /boltz-backend/bin/boltzd'"
     ports:
@@ -44,6 +50,8 @@ services:
 
   clightning-1:
     hostname: clightning-1
+    depends_on:
+      - bitcoind
     image: michael1011/cln:latest
     entrypoint: "sh -c 'sleep 15 && lightningd --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
@@ -53,21 +61,14 @@ services:
 
   clightning-2:
     hostname: clightning-2
+    depends_on:
+      - bitcoind
     image: michael1011/cln:latest
     entrypoint: "sh -c 'sleep 15 && lightningd --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
     volumes:
       - ./data/clightning-2:/root/.lightning/
-
-  clightning-3:
-    hostname: clightning-3
-    image: michael1011/cln:latest
-    entrypoint: "sh -c 'sleep 15 && lightningd --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
-    expose:
-      - 9735
-    volumes:
-      - ./data/clightning-3:/root/.lightnind/
 
   lnd-1:
     hostname: lnd-1
@@ -117,6 +118,8 @@ services:
 
   mempool-web:
     restart: on-failure
+    depends_on:
+      - mempool-api
     environment:
       FRONTEND_HTTP_PORT: "8080"
       BACKEND_MAINNET_HTTP_HOST: "mempool-api"
@@ -127,6 +130,7 @@ services:
   mempool-api:
     depends_on:
       - electrs
+      - mempool-db
     environment:
       MEMPOOL_BACKEND: "electrum"
       ELECTRUM_HOST: electrs
