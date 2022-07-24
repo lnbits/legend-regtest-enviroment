@@ -13,7 +13,7 @@
   ./tests && echo "PASSED" || echo "FAILED" > /dev/null
 ```
 
-# developement
+# development
 uncomment following line in docker-compose.yaml, if you wanna use the source code of you current
 lnbits-legend repo inside the docker
 ```yaml
