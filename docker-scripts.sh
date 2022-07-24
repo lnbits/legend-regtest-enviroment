@@ -98,7 +98,7 @@ lnbits-lightning-init(){
   echo "mining 10 blocks..."
   bitcoin-cli-sim -generate 10 > /dev/null
 
-  echo "wait for 10s..."
+  echo "wait for 15s..."
   sleep 15 # else blockheight tests fail for cln
 
   lnbits-lightning-sync
