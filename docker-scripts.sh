@@ -75,7 +75,6 @@ lnbits-regtest-init(){
   lnbits-bitcoin-init
   lnbits-lightning-sync
   lnbits-lightning-init
-  wait-for-lnbits
 }
 
 lnbits-lightning-sync(){
@@ -141,18 +140,6 @@ lnbits-lightning-init(){
 
   lnbits-lightning-sync
 
-}
-
-wait-for-lnbits(){
-  while true; do
-    statuscode=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:5000")
-    if [[ "$statuscode" == "200" ]]; then
-      break
-      echo "lnbits is online!"
-    fi
-    echo "waiting for lnbits to come online..."
-    sleep 1
-  done
 }
 
 wait-for-lnd-channel(){
