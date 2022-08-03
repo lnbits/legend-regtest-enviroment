@@ -28,14 +28,14 @@ services:
   boltz:
     hostname: boltz
     depends_on:
-      - lnd-1
+      - lnd-2
     image: boltz/backend
     entrypoint: "sh -c 'sleep 40; /boltz-backend/bin/boltzd'"
     ports:
       - 9000:9000
       - 9001:9001
     volumes:
-      - ./data/lnd-1:/data/lnd/
+      - ./data/lnd-2:/data/lnd/
       - ./data/boltz/:/root/.boltz/
 
   bitcoind:
