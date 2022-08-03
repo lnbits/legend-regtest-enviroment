@@ -13,39 +13,30 @@
   ./tests && echo "PASSED" || echo "FAILED" > /dev/null
 ```
 
-# development
-uncomment following line in docker-compose.yaml, if you wanna use the source code of you current
-lnbits-legend repo inside the docker
-```yaml
-4     volumes:
-5       #- ../lnbits:/app/lnbits
+# lnbits development
+add this ENV variables to your `.env` file
+```console
+DEBUG=true
+LNBITS_BACKEND_WALLET_CLASS="LndRestWallet"
+LND_REST_ENDPOINT="https://localhost:8081/"
+LND_REST_CERT="./docker/data/lnd-2/tls.cert"
+LND_REST_MACAROON="./docker/data/lnd-2/chain/bitcoin/regtest/admin.macaroon"
 ```
 
 # usage
-build the lnbits docker image
-```console
-git clone git@github.com:lnbits/lnbits-legend.git ~/repos/lnbits-legend
-cd ~/repos/lnbits-legend
-docker build -t lnbits-legend .
-```
-
 get the regtest enviroment ready
 ```console
-git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-legend
 mkdir ~/repos/lnbits-legend/docker
+git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-legend/docker
 cd ~/repos/lnbits-legend/docker
-source docker-scripts.sh
-```
-start the regtest
-```console
-# start docker-compose with logs
-lnbits-regtest-start-log
-# start docker-compose in background
-lnbits-regtest-start
+chmod +x ./tests
+./tests # start the regtest and also run tests
 ```
 
 usage of the `bitcoin-cli-sim`, `lightning-cli-sim` and `lncli-sim` aliases
 ```console
+cd ~/repos/lnbits-legend/docker
+source docker-scripts.sh
 # use bitcoin core, mine a block
 bitcoin-cli-sim -generate 1
 
@@ -59,11 +50,14 @@ lncli-sim 1 newaddr p2wsh
 lncli-sim 2 listpeers
 ```
 
-# urls for lnbits and mempool
-* lnbits: http://localhost:5000/
+# urls
 * mempool: http://localhost:8080/
+* boltz api: http://localhost:9001/
+* lnd-1 rest: http://localhost:8081/
 
-# lnbits debug log
+# debugging docker logs
 ```console
-docker logs lnbits-legend-lnbits-1 -f
+docker logs lnbits-legend-boltz-1 -f
+docker logs lnbits-legend-clightning-1-1 -f
+docker logs lnbits-legend-lnd-2-1 -f
 ```

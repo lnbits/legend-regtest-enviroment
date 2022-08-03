@@ -34,7 +34,6 @@ echo ""
 
 run "boltz service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:9001/version")
 run "mempool service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:8080/")
-run "lnbits service status" "200" $(curl -s -o /dev/null -w "%{http_code}" "http://localhost:5000")
 for i in 1 2; do
   run "lnd-$i .synced_to_chain" "true" $(lncli-sim $i getinfo | jq -r ".synced_to_chain")
   run "lnd-$i utxo count" $utxos $(lncli-sim $i listunspent | jq -r ".utxos | length")
