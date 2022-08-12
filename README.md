@@ -18,9 +18,10 @@ add this ENV variables to your `.env` file
 ```console
 DEBUG=true
 LNBITS_BACKEND_WALLET_CLASS="LndRestWallet"
-LND_REST_ENDPOINT="https://localhost:8081/"
-LND_REST_CERT="./docker/data/lnd-2/tls.cert"
-LND_REST_MACAROON="./docker/data/lnd-2/chain/bitcoin/regtest/admin.macaroon"
+LND_REST_ENDPOINT=https://127.0.0.1:8081/
+LND_REST_CERT=/home/user/repos/lnbits-legend/docker/data/lnd-1/tls.cert
+LND_REST_MACAROON=/home/user/repos/lnbits-legend/docker/data/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
+poetry run uvicorn --host 0.0.0.0 --port 5000 --reload
 ```
 
 # usage
@@ -54,9 +55,11 @@ lncli-sim 2 listpeers
 * mempool: http://localhost:8080/
 * boltz api: http://localhost:9001/
 * lnd-1 rest: http://localhost:8081/
+* lnbits: http://localhost:5001/
 
 # debugging docker logs
 ```console
+docker logs lnbits-legend-lnbits-1 -f
 docker logs lnbits-legend-boltz-1 -f
 docker logs lnbits-legend-clightning-1-1 -f
 docker logs lnbits-legend-lnd-2-1 -f

@@ -82,6 +82,7 @@ lnbits-lightning-sync(){
   wait-for-clightning-sync 2
   wait-for-lnd-sync 1
   wait-for-lnd-sync 2
+  wait-for-lnd-sync 3
 }
 
 lnbits-lightning-init(){

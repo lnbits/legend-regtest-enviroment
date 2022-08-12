@@ -7,7 +7,8 @@ services:
       - boltz
       - mempool-api
       - lnd-3
-    image: lnbitsdocker/lnbits-legend
+    image: lnbits-legend
+    # image: lnbitsdocker/lnbits-legend
     restart: on-failure
     user: "0:0"
     entrypoint: "sh -c 'sleep 30; poetry run uvicorn lnbits.__main__:app --port 5001 --host lnbits'"
