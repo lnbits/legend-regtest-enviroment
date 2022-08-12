@@ -54,9 +54,9 @@ lnbits-regtest-start-log(){
 lnbits-regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/lnd-1 ./data/lnd-2 ./data/boltz/boltz.db
+  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db
   # recreate lightning node data folders preventing permission errors
-  mkdir ./data/clightning-1 ./data/clightning-2 ./data/lnd-1 ./data/lnd-2
+  mkdir ./data/clightning-1 ./data/clightning-2 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3
 }
 
 lnbits-regtest-restart(){
@@ -92,6 +92,7 @@ lnbits-lightning-init(){
     fund_clightning_node 2
     fund_lnd_node 1
     fund_lnd_node 2
+    fund_lnd_node 3
   done
 
   echo "mining 10 blocks..."
@@ -114,6 +115,13 @@ lnbits-lightning-init(){
   bitcoin-cli-sim -generate 10 > /dev/null
   wait-for-lnd-channel 1
 
+  # lnd-1 -> lnd-3
+  lncli-sim 1 connect $(lncli-sim 3 getinfo | jq -r '.identity_pubkey')@lnbits-legend-lnd-3-1 > /dev/null
+  echo "open channel from lnd-1 to lnd-3"
+  lncli-sim 1 openchannel $(lncli-sim 3 getinfo | jq -r '.identity_pubkey') $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate 10 > /dev/null
+  wait-for-lnd-channel 1
+
   # lnd-1 -> cln-1
   lncli-sim 1 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@lnbits-legend-clightning-1-1 > /dev/null
   echo "open channel from lnd-1 to cln-1"
@@ -127,6 +135,21 @@ lnbits-lightning-init(){
   lncli-sim 2 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate 10 > /dev/null
   wait-for-lnd-channel 2
+
+  # lnd-3 -> cln-2
+  lncli-sim 3 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@lnbits-legend-clightning-2-1 > /dev/null
+  echo "open channel from lnd-3 to cln-2"
+  lncli-sim 3 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate 10 > /dev/null
+  wait-for-lnd-channel 3
+
+  # lnd-3 -> cln-1
+  lncli-sim 3 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@lnbits-legend-clightning-1-1 > /dev/null
+  echo "open channel from lnd-3 to cln-1"
+  lncli-sim 3 openchannel $(lightning-cli-sim 1 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate 10 > /dev/null
+  wait-for-lnd-channel 3
+
 
   # cln-1 -> cln-2
   peerid=$(connect_clightning_node 1 2)

@@ -1,5 +1,30 @@
 version: "3.7"
 services:
+
+  lnbits:
+    hostname: lnbits
+    depends_on:
+      - boltz
+      - mempool-api
+      - lnd-3
+    image: lnbitsdocker/lnbits-legend
+    restart: on-failure
+    user: "0:0"
+    entrypoint: "sh -c 'sleep 30; poetry run uvicorn lnbits.__main__:app --port 5001 --host lnbits'"
+    environment:
+      HOST: lnbits
+      DEBUG: true
+      LNBITS_BACKEND_WALLET_CLASS: "LndRestWallet"
+      LNBITS_DATA_FOLDER: "./data"
+      LND_REST_ENDPOINT: "https://lnd-3:8081/"
+      LND_REST_CERT: "./lnd/tls.cert"
+      LND_REST_MACAROON: "./lnd/data/chain/bitcoin/regtest/admin.macaroon"
+    ports:
+      - 5001:5001
+    volumes:
+      - lnbits-data:/app/data
+      - ./data/lnd-3:/app/lnd:uid=1000,gid=1000
+
   boltz:
     hostname: boltz
     depends_on:
@@ -76,6 +101,20 @@ services:
     volumes:
       - ./data/lnd-2:/root/.lnd/
 
+  lnd-3:
+    hostname: lnd-3
+    depends_on:
+      - bitcoind
+    image: boltz/lnd:0.14.2-beta
+    restart: on-failure
+    entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-3:9735 --rpclisten=lnd-3:10009 --restlisten=lnd-3:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
+    expose:
+      - 8081
+      - 9735
+      - 10009
+    volumes:
+      - ./data/lnd-3:/root/.lnd/
+
   electrs:
     depends_on:
       - bitcoind
@@ -131,3 +170,6 @@ services:
       MYSQL_PASSWORD: "mempool"
       MYSQL_ROOT_PASSWORD: "admin"
     image: mariadb:10.5.8
+
+volumes:
+  lnbits-data:
