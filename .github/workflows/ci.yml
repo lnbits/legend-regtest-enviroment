@@ -8,6 +8,6 @@ jobs:
       - name: Run tests
         run: |
           git clone https://github.com/lnbits/lnbits-legend.git
-          docker build -t lnbits-legend lnbits-legend
+          docker build -t lnbitsdocker/lnbits-legend lnbits-legend
           chmod +x ./tests
           ./tests
