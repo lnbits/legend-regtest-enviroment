@@ -29,7 +29,7 @@ get the regtest enviroment ready
 ```console
 git clone git@github.com:lnbits/lnbits-legend.git ~/repos/lnbits-legend
 cd ~/repos/lnbits-legend
-docker build -t lnbits-legend .
+docker build -t lnbitsdocker/lnbits-legend .
 mkdir ~/repos/lnbits-legend/docker
 git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-legend/docker
 cd ~/repos/lnbits-legend/docker
@@ -59,9 +59,6 @@ lncli-sim 2 listpeers
 * boltz api: http://localhost:9001/
 * lnd-1 rest: http://localhost:8081/
 * lnbits: http://localhost:5001/
-
-## latest release version from docker hub
-if you want to use the latest version of lnbits uncomment L#11 in docker-compose.yaml
 
 # debugging docker logs
 ```console
