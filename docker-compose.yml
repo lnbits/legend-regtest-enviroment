@@ -41,7 +41,7 @@ services:
 
   bitcoind:
     hostname: bitcoind
-    image: boltz/bitcoin-core:22.0
+    image: boltz/bitcoin-core:23.0
     command: "-regtest -fallbackfee=0.00000253 -zmqpubrawtx=tcp://0.0.0.0:29000 -zmqpubrawblock=tcp://0.0.0.0:29001 -txindex -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=lnbits -rpcpassword=lnbits"
     expose:
       - 29000
@@ -53,7 +53,7 @@ services:
     hostname: clightning-1
     depends_on:
       - bitcoind
-    image: michael1011/cln:latest
+    image: boltz/c-lightning:0.12.0
     entrypoint: "sh -c 'sleep 15 && lightningd --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
@@ -64,7 +64,7 @@ services:
     hostname: clightning-2
     depends_on:
       - bitcoind
-    image: michael1011/cln:latest
+    image: boltz/c-lightning:0.12.0
     entrypoint: "sh -c 'sleep 15 && lightningd --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
@@ -75,7 +75,7 @@ services:
     hostname: lnd-1
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.14.2-beta
+    image: boltz/lnd:0.15.0-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     ports:
@@ -92,7 +92,7 @@ services:
     hostname: lnd-2
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.14.2-beta
+    image: boltz/lnd:0.15.0-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     expose:
@@ -106,7 +106,7 @@ services:
     hostname: lnd-3
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.14.2-beta
+    image: boltz/lnd:0.15.0-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-3:9735 --rpclisten=lnd-3:10009 --restlisten=lnd-3:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     expose:
