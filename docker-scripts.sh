@@ -36,7 +36,7 @@ fund_lnd_node() {
 # args(i, j)
 connect_clightning_node() {
   pubkey=$(lightning-cli-sim $2 getinfo | jq -r '.id')
-  lightning-cli-sim $1 connect $pubkey@lnbits-legend-clightning-$2-1 | jq -r '.id'
+  lightning-cli-sim $1 connect $pubkey@lnbits-legend-clightning-$2-1:9735 | jq -r '.id'
 }
 
 lnbits-regtest-start(){
