@@ -10,7 +10,7 @@ services:
     image: lnbitsdocker/lnbits-legend
     restart: on-failure
     user: "0:0"
-    entrypoint: "sh -c 'sleep 30; poetry run uvicorn lnbits.__main__:app --port 5001 --host lnbits'"
+    entrypoint: "sh -c 'sleep 30; poetry run lnbits --port 5001 --host lnbits'"
     environment:
       HOST: lnbits
       DEBUG: true
