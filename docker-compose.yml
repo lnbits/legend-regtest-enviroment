@@ -10,9 +10,10 @@ services:
     image: lnbitsdocker/lnbits-legend
     restart: on-failure
     user: "0:0"
-    entrypoint: "sh -c 'sleep 30; poetry run lnbits --port 5001 --host lnbits'"
+    entrypoint: "sh -c 'sleep 30; poetry run lnbits'"
     environment:
       HOST: lnbits
+      PORT: 5001
       DEBUG: true
       LNBITS_BACKEND_WALLET_CLASS: "LndRestWallet"
       LNBITS_DATA_FOLDER: "./data"
