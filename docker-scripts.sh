@@ -104,9 +104,9 @@ lnbits-lightning-init(){
 
   lnbits-lightning-sync
 
-  channel_size=32000000 # 0.032 btc
-  balance_size=16000000 # 0.16 btc
-  balance_size_msat=16000000000 # 0.16 btc
+  channel_size=24000000 # 0.032 btc
+  balance_size=12000000 # 0.16 btc
+  balance_size_msat=12000000000 # 0.16 btc
 
 
   # lnd-1 -> lnd-2
