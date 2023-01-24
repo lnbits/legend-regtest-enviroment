@@ -19,6 +19,18 @@ lncli-sim() {
   docker exec lnbits-legend-lnd-$i-1 lncli --network regtest --rpcserver=lnd-$i:10009 $@
 }
 
+get-eclair-pubkey() {
+  while true; do
+    pubkey=$(docker exec -it lnbits-legend-eclair-1 curl http://localhost:8080/getinfo -X POST -u :lnbits 2> /dev/null | jq -r .nodeId 2> /dev/null)
+    pubkeyPrefix=$(echo $pubkey | cut -c1,2)
+    if [[ "$pubkeyPrefix" == "02" || "$pubkeyPrefix" == "03" ]]; then
+      echo $pubkey
+      break
+    fi
+    sleep 1
+  done
+}
+
 # args(i)
 fund_clightning_node() {
   address=$(lightning-cli-sim $1 newaddr | jq -r .bech32)
@@ -54,7 +66,7 @@ lnbits-regtest-start-log(){
 lnbits-regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db
+  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db ./data/eclair/regtest
   # recreate lightning node data folders preventing permission errors
   mkdir ./data/clightning-1 ./data/clightning-2 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3
 }
@@ -156,6 +168,13 @@ lnbits-lightning-init(){
   peerid=$(connect_clightning_node 1 2)
   echo "open channel from cln-1 to cln-2"
   lightning-cli-sim 1 fundchannel -k id=$peerid amount=$channel_size push_msat=$balance_size_msat > /dev/null
+
+  # lnd-1 -> eclair-1
+  lncli-sim 1 connect $(get-eclair-pubkey)@lnbits-legend-eclair-1 > /dev/null
+  echo "open channel from lnd-1 to eclair-1"
+  lncli-sim 1 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate 10 > /dev/null
+  wait-for-lnd-channel 1
 
   bitcoin-cli-sim -generate 10 > /dev/null
 
