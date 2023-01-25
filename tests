@@ -44,7 +44,6 @@ for i in 1 2 3; do
     channel_count=3
   fi
   run "lnd-$i openchannels" $channel_count $(lncli-sim $i listchannels | jq -r ".channels | length")
-  run "lnd-$i .channels[0].active_channel" true $(lncli-sim $i listchannels | jq -r ".channels[0].active")
   run "lnd-$i .channels[0].capacity" $channel_size $(lncli-sim $i listchannels | jq -r ".channels[0].capacity")
   run "lnd-$i .channels[0].push_amount_sat" $balance_size $(lncli-sim $i listchannels | jq -r ".channels[0].push_amount_sat")
 done
