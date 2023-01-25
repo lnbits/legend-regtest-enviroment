@@ -123,6 +123,8 @@ services:
     image: boltz/eclair:0.8.0
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; /eclair-node/bin/eclair-node.sh -Declair.datadir=/root/eclair -Declair.printToConsole'"
+    ports:
+      - 8082:8080
     expose:
       - 9735
       - 8080
