@@ -57,7 +57,7 @@ for i in 1 2; do
   run "cln-$i channel[0].channel_sat" $balance_size $(lightning-cli-sim $i listfunds | jq -r ".channels[0].channel_sat")
 done
 
-run "eclair-1 openchannels" 1 $(docker exec -it lnbits-legend-eclair-1 curl http://localhost:8080/channels -X POST -u :lnbits | jq '. | length')
+run "eclair-1 openchannels" 1 $(docker exec lnbits-legend-eclair-1 curl http://localhost:8080/channels -X POST -u :lnbits | jq '. | length')
 
 run "boltz service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:9001/version")
 run "mempool service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:8080/")
