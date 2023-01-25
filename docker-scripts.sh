@@ -21,7 +21,7 @@ lncli-sim() {
 
 get-eclair-pubkey() {
   while true; do
-    pubkey=$(docker exec -it lnbits-legend-eclair-1 curl http://localhost:8080/getinfo -X POST -u :lnbits 2> /dev/null | jq -r .nodeId 2> /dev/null)
+    pubkey=$(docker exec lnbits-legend-eclair-1 curl http://localhost:8080/getinfo -X POST -u :lnbits 2> /dev/null | jq -r .nodeId 2> /dev/null)
     pubkeyPrefix=$(echo $pubkey | cut -c1,2)
     if [[ "$pubkeyPrefix" == "02" || "$pubkeyPrefix" == "03" ]]; then
       echo $pubkey
