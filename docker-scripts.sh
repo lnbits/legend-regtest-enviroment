@@ -111,8 +111,8 @@ lnbits-lightning-init(){
   echo "mining 10 blocks..."
   bitcoin-cli-sim -generate 10 > /dev/null
 
-  echo "wait for 15s..."
-  sleep 15 # else blockheight tests fail for cln
+  echo "wait for 20s..."
+  sleep 20 # else blockheight tests fail for cln
 
   lnbits-lightning-sync
 
@@ -162,7 +162,6 @@ lnbits-lightning-init(){
   lncli-sim 3 openchannel $(lightning-cli-sim 1 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate 10 > /dev/null
   wait-for-lnd-channel 3
-
 
   # cln-1 -> cln-2
   peerid=$(connect_clightning_node 1 2)
