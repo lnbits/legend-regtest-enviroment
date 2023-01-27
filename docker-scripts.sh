@@ -182,8 +182,8 @@ lnbits-lightning-init(){
 
   lnbits-lightning-sync
 
-  echo "wait for 20s... warmup..."
-  sleep 20
+  echo "wait for 30s... warmup..."
+  sleep 30
 
 }
 
