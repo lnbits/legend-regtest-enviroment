@@ -170,7 +170,6 @@ lnbits-lightning-init(){
   # cln-1 -> cln-2
   peerid=$(connect_clightning_node 1 2)
   echo "open channel from cln-1 to cln-2"
-  echo $peerid
   lightning-cli-sim 1 fundchannel -k id=$peerid amount=$channel_size push_msat=$balance_size_msat > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
 
