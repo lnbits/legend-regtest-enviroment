@@ -20,7 +20,7 @@ run(){
 }
 
 failed="false"
-blockheight=240
+blockheight=201
 utxos=5
 channel_size=24000000 # 0.024 btc
 balance_size=12000000 # 0.012 btc
