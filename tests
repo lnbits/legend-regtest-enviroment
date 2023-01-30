@@ -50,7 +50,7 @@ done
 for i in 1 2; do
   run "cln-$i blockheight" $blockheight $(lightning-cli-sim $i getinfo | jq -r ".blockheight")
   run "cln-$i utxo count" $utxos $(lightning-cli-sim $i listfunds | jq -r ".outputs | length")
-  run "cln-$i openchannels" 3 $(lightning-cli-sim $i getinfo | jq -r ".num_active_channels")
+  run "cln-$i openchannels" 2 $(lightning-cli-sim $i getinfo | jq -r ".num_active_channels")
   run "cln-$i channel[0].state" "CHANNELD_NORMAL" $(lightning-cli-sim $i listfunds | jq -r ".channels[0].state")
   run "cln-$i channel[0].channel_total_sat" $channel_size $(lightning-cli-sim $i listfunds | jq -r ".channels[0].channel_total_sat")
   run "cln-$i channel[0].channel_sat" $balance_size $(lightning-cli-sim $i listfunds | jq -r ".channels[0].channel_sat")
