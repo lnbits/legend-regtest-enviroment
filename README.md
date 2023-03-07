@@ -1,5 +1,13 @@
 ![TESTS](https://github.com/lnbits/legend-regtest-enviroment/actions/workflows/ci.yml/badge.svg)
 
+# nodes
+* lnd-1: for locally testing your current lnbits
+* lnd-2: used for boltz backend
+* lnd-3: used for lnbits inside docker
+* cln-1: for locally testing your current lnbits
+* cln-2: used for clightning-REST
+* eclair-1: for locally testing your current lnbits
+
 # requirements
 * docker compose v2: https://docs.docker.com/compose/install/compose-plugin/
 * jq

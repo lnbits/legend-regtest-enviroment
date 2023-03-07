@@ -71,6 +71,20 @@ services:
     volumes:
       - ./data/clightning-2:/root/.lightning/
 
+  clightning-2-rest:
+    hostname: clightning-2-rest
+    depends_on:
+      - clightning-2
+    image: saubyk/c-lightning-rest:0.10.1
+    entrypoint: "sh -c 'sleep 35 && /sbin/tini -g -- ./docker-entrypoint.sh'"
+    ports:
+      - 3001:3001
+    expose:
+      - 3001
+    volumes:
+      - ./data/clightning-2:/root/.lightning/:uid=1000,gid=1000
+      - ./data/clightning-2-rest:/usr/src/app/certs/
+
   lnd-1:
     hostname: lnd-1
     depends_on:
