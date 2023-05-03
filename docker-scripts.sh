@@ -66,9 +66,9 @@ lnbits-regtest-start-log(){
 lnbits-regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db ./data/eclair/regtest
+  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db ./data/eclair/regtest
   # recreate lightning node data folders preventing permission errors
-  mkdir ./data/clightning-1 ./data/clightning-2 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3
+  mkdir ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3
 }
 
 lnbits-regtest-restart(){
@@ -92,6 +92,7 @@ lnbits-regtest-init(){
 lnbits-lightning-sync(){
   wait-for-clightning-sync 1
   wait-for-clightning-sync 2
+  wait-for-clightning-sync 3
   wait-for-lnd-sync 1
   wait-for-lnd-sync 2
   wait-for-lnd-sync 3
@@ -103,6 +104,7 @@ lnbits-lightning-init(){
   for i in 0 1 2 3 4; do
     fund_clightning_node 1
     fund_clightning_node 2
+    fund_clightning_node 3
     fund_lnd_node 1
     fund_lnd_node 2
     fund_lnd_node 3
@@ -139,12 +141,26 @@ lnbits-lightning-init(){
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
+  # lnd-1 -> cln-3
+  lncli-sim 1 connect $(lightning-cli-sim 3 getinfo | jq -r '.id')@lnbits-legend-clightning-3-1 > /dev/null
+  echo "open channel from lnd-1 to cln-3"
+  lncli-sim 1 openchannel $(lightning-cli-sim 3 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate $channel_confirms > /dev/null
+  wait-for-lnd-channel 1
+
   # lnd-2 -> cln-2
   lncli-sim 2 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@lnbits-legend-clightning-2-1 > /dev/null
   echo "open channel from lnd-2 to cln-2"
   lncli-sim 2 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 2
+
+  # lnd-3 -> cln-3
+  lncli-sim 3 connect $(lightning-cli-sim 3 getinfo | jq -r '.id')@lnbits-legend-clightning-3-1 > /dev/null
+  echo "open channel from lnd-3 to cln-1"
+  lncli-sim 3 openchannel $(lightning-cli-sim 3 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate $channel_confirms > /dev/null
+  wait-for-lnd-channel 3
 
   # lnd-3 -> cln-2
   lncli-sim 3 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@lnbits-legend-clightning-2-1 > /dev/null
@@ -160,15 +176,16 @@ lnbits-lightning-init(){
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 3
 
-  # lnd-1 -> eclair-1
-  lncli-sim 1 connect $(get-eclair-pubkey)@lnbits-legend-eclair-1 > /dev/null
-  echo "open channel from lnd-1 to eclair-1"
-  lncli-sim 1 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
+  # lnd-2 -> eclair-1
+  lncli-sim 2 connect $(get-eclair-pubkey)@lnbits-legend-eclair-1 > /dev/null
+  echo "open channel from lnd-2 to eclair-1"
+  lncli-sim 2 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
-  wait-for-lnd-channel 1
+  wait-for-lnd-channel 2
 
   wait-for-clightning-channel 1
   wait-for-clightning-channel 2
+  wait-for-clightning-channel 3
 
   lnbits-lightning-sync
 

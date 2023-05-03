@@ -20,7 +20,7 @@ run(){
 }
 
 failed="false"
-blockheight=195
+blockheight=207
 utxos=5
 channel_size=24000000 # 0.024 btc
 balance_size=12000000 # 0.012 btc
@@ -36,18 +36,16 @@ for i in 1 2 3; do
   run "lnd-$i .synced_to_chain" "true" $(lncli-sim $i getinfo | jq -r ".synced_to_chain")
   run "lnd-$i utxo count" $utxos $(lncli-sim $i listunspent | jq -r ".utxos | length")
   run "lnd-$i .block_height" $blockheight $(lncli-sim $i getinfo | jq -r ".block_height")
-  if [[ "$i" == "1" ]]; then
-    channel_count=4
-  elif [[ "$i" == "2" ]]; then
-    channel_count=2
-  else
+  if [[ "$i" == "2" ]]; then
     channel_count=3
+  else
+    channel_count=4
   fi
   run "lnd-$i openchannels" $channel_count $(lncli-sim $i listchannels | jq -r ".channels | length")
   run "lnd-$i .channels[0].capacity" $channel_size $(lncli-sim $i listchannels | jq -r ".channels[0].capacity")
   run "lnd-$i .channels[0].push_amount_sat" $balance_size $(lncli-sim $i listchannels | jq -r ".channels[0].push_amount_sat")
 done
-for i in 1 2; do
+for i in 1 2 3; do
   # run "cln-$i blockheight" $blockheight $(lightning-cli-sim $i getinfo | jq -r ".blockheight")
   run "cln-$i utxo count" $utxos $(lightning-cli-sim $i listfunds | jq -r ".outputs | length")
   run "cln-$i openchannels" 2 $(lightning-cli-sim $i getinfo | jq -r ".num_active_channels")
