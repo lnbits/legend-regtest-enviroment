@@ -2,21 +2,21 @@
 export COMPOSE_PROJECT_NAME=lnbits-legend
 
 bitcoin-cli-sim() {
-  docker exec lnbits-legend-bitcoind-1 bitcoin-cli -rpcuser=lnbits -rpcpassword=lnbits -regtest $@
+  docker exec lnbits-legend-bitcoind-1 bitcoin-cli -rpcuser=lnbits -rpcpassword=lnbits -regtest "$@"
 }
 
 # args(i, cmd)
 lightning-cli-sim() {
   i=$1
   shift # shift first argument so we can use $@
-  docker exec lnbits-legend-clightning-$i-1 lightning-cli --network regtest $@
+  docker exec lnbits-legend-clightning-$i-1 lightning-cli --network regtest "$@"
 }
 
 # args(i, cmd)
 lncli-sim() {
   i=$1
   shift # shift first argument so we can use $@
-  docker exec lnbits-legend-lnd-$i-1 lncli --network regtest --rpcserver=lnd-$i:10009 $@
+  docker exec lnbits-legend-lnd-$i-1 lncli --network regtest --rpcserver=lnd-$i:10009 "$@"
 }
 
 get-eclair-pubkey() {
