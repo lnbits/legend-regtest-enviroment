@@ -54,6 +54,9 @@ services:
     image: ghcr.io/vulpemventures/elements:22.1.1
     expose:
       - 18884
+      - 31000
+      - 31001
+      - 31002
     volumes:
       - ./data/elements:/home/elements/.elements
 
