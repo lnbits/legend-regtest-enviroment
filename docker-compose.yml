@@ -30,7 +30,7 @@ services:
     hostname: boltz
     depends_on:
       - lnd-2
-    image: boltz/backend
+    image: boltz/boltz:3.3.0
     entrypoint: "sh -c 'sleep 40; /boltz-backend/bin/boltzd'"
     ports:
       - 9000:9000
