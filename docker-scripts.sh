@@ -5,6 +5,10 @@ bitcoin-cli-sim() {
   docker exec lnbits-legend-bitcoind-1 bitcoin-cli -rpcuser=lnbits -rpcpassword=lnbits -regtest "$@"
 }
 
+elements-cli-sim() {
+  docker exec -it lnbits-legend-elementsd-1 elements-cli "$@"
+}
+
 # args(i, cmd)
 lightning-cli-sim() {
   i=$1
@@ -66,7 +70,7 @@ lnbits-regtest-start-log(){
 lnbits-regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db ./data/eclair/regtest
+  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db ./data/eclair/regtest ./data/elements/liquidregtest
   # recreate lightning node data folders preventing permission errors
   mkdir ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3
 }
@@ -83,8 +87,14 @@ lnbits-bitcoin-init(){
   bitcoin-cli-sim -generate 150 > /dev/null
 }
 
+lnbits-elements-init(){
+  elements-cli-sim createwallet lnbits || elements-cli-sim loadwallet lnbits
+  elements-cli-sim rescanblockchain 0 > /dev/null
+}
+
 lnbits-regtest-init(){
   lnbits-bitcoin-init
+  lnbits-elements-init
   lnbits-lightning-sync
   lnbits-lightning-init
 }
@@ -99,7 +109,6 @@ lnbits-lightning-sync(){
 }
 
 lnbits-lightning-init(){
-
   # create 10 UTXOs for each node
   for i in 0 1 2 3 4; do
     fund_clightning_node 1

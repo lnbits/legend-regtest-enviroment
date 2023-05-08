@@ -49,6 +49,14 @@ services:
       - 18443
       - 18444
 
+  elementsd:
+    hostname: elements
+    image: ghcr.io/vulpemventures/elements:22.1.1
+    expose:
+      - 18884
+    volumes:
+      - ./data/elements:/home/elements/.elements
+
   clightning-1:
     hostname: clightning-1
     depends_on:
