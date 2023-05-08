@@ -89,6 +89,7 @@ lnbits-bitcoin-init(){
 
 lnbits-elements-init(){
   elements-cli-sim createwallet lnbits || elements-cli-sim loadwallet lnbits
+  elements-cli-sim -generate 1
   elements-cli-sim rescanblockchain 0 > /dev/null
 }
 
