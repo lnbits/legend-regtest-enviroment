@@ -4,8 +4,6 @@ services:
   lnbits:
     hostname: lnbits
     depends_on:
-      - boltz
-      - mempool-api
       - lnd-3
     image: lnbitsdocker/lnbits-legend
     restart: on-failure
@@ -26,22 +24,9 @@ services:
       - lnbits-data:/app/data
       - ./data/lnd-3:/app/lnd:uid=1000,gid=1000
 
-  boltz:
-    hostname: boltz
-    depends_on:
-      - lnd-2
-    image: boltz/backend
-    entrypoint: "sh -c 'sleep 40; /boltz-backend/bin/boltzd'"
-    ports:
-      - 9000:9000
-      - 9001:9001
-    volumes:
-      - ./data/lnd-2:/data/lnd/
-      - ./data/boltz/:/root/.boltz/
-
   bitcoind:
     hostname: bitcoind
-    image: boltz/bitcoin-core:24.0.1
+    image: boltz/bitcoin-core:25.0
     command: "-regtest -fallbackfee=0.00000253 -zmqpubrawtx=tcp://0.0.0.0:29000 -zmqpubrawblock=tcp://0.0.0.0:29001 -txindex -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=lnbits -rpcpassword=lnbits"
     expose:
       - 29000
@@ -100,7 +85,7 @@ services:
     hostname: lnd-1
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.15.5-beta
+    image: boltz/lnd:0.16.2-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     ports:
@@ -117,7 +102,7 @@ services:
     hostname: lnd-2
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.15.5-beta
+    image: boltz/lnd:0.16.2-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     expose:
@@ -131,7 +116,7 @@ services:
     hostname: lnd-3
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.15.5-beta
+    image: boltz/lnd:0.16.2-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-3:9735 --rpclisten=lnd-3:10009 --restlisten=lnd-3:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     expose:
@@ -155,62 +140,6 @@ services:
       - 8080
     volumes:
       - ./data/eclair:/root/eclair
-
-  electrs:
-    depends_on:
-      - bitcoind
-    hostname: electrs
-    image: getumbrel/electrs:latest
-    environment:
-      ELECTRS_ELECTRUM_RPC_ADDR: "electrs:50001"
-      ELECTRS_DAEMON_RPC_ADDR: "bitcoind:18443"
-      ELECTRS_DAEMON_P2P_ADDR: "bitcoind:18444"
-    entrypoint: "sh -c 'sleep 15 && electrs'"
-    ports:
-      - 50001:50001
-    volumes:
-      - ./data/electrs/:/data/.electrs/
-
-  mempool-web:
-    restart: on-failure
-    depends_on:
-      - mempool-api
-    environment:
-      FRONTEND_HTTP_PORT: "8080"
-      BACKEND_MAINNET_HTTP_HOST: "mempool-api"
-    image: mempool/frontend:latest
-    ports:
-      - 8080:8080
-
-  mempool-api:
-    depends_on:
-      - electrs
-      - mempool-db
-    environment:
-      MEMPOOL_BACKEND: "electrum"
-      ELECTRUM_HOST: electrs
-      ELECTRUM_PORT: "50001"
-      ELECTRUM_TLS_ENABLED: "false"
-      CORE_RPC_HOST: bitcoind
-      CORE_RPC_PORT: "18443"
-      CORE_RPC_USERNAME: "lnbits"
-      CORE_RPC_PASSWORD: "lnbits"
-      DATABASE_ENABLED: "true"
-      DATABASE_HOST: "mempool-db"
-      DATABASE_DATABASE: "mempool"
-      DATABASE_USERNAME: "mempool"
-      DATABASE_PASSWORD: "mempool"
-      STATISTICS_ENABLED: "true"
-    image: mempool/backend:latest
-    restart: on-failure
-
-  mempool-db:
-    environment:
-      MYSQL_DATABASE: "mempool"
-      MYSQL_USER: "mempool"
-      MYSQL_PASSWORD: "mempool"
-      MYSQL_ROOT_PASSWORD: "admin"
-    image: mariadb:10.5.8
 
 volumes:
   lnbits-data:

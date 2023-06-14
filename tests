@@ -55,9 +55,6 @@ for i in 1 2 3; do
 done
 
 run "eclair-1 openchannels" 1 $(docker exec lnbits-legend-eclair-1 curl -s http://localhost:8080/channels -X POST -u :lnbits| jq '. | length')
-
-run "boltz service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:9001/version")
-run "mempool service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:8080/")
 run "lnbits service status" "200" $(curl -s -o /dev/null -w "%{http_code}" "http://localhost:5001/")
 
 # return non-zero exit code if a test fails
