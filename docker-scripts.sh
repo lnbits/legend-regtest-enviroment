@@ -21,7 +21,7 @@ lncli-sim() {
 
 get-eclair-pubkey() {
   while true; do
-    pubkey=$(docker exec lnbits-legend-eclair-1 curl http://localhost:8080/getinfo -X POST -u :lnbits 2> /dev/null | jq -r .nodeId 2> /dev/null)
+    pubkey=$(docker exec lnbits-legend-eclair-1 curl http://localhost:8080/getinfo -X POST -s -u :lnbits | jq -r .nodeId 2> /dev/null)
     pubkeyPrefix=$(echo $pubkey | cut -c1,2)
     if [[ "$pubkeyPrefix" == "02" || "$pubkeyPrefix" == "03" ]]; then
       echo $pubkey
@@ -30,6 +30,19 @@ get-eclair-pubkey() {
     sleep 1
   done
 }
+
+wait-for-eclair-channel() {
+  while true; do
+    state=$(docker exec lnbits-legend-eclair-1 curl http://localhost:8080/channels -X POST -s -u :lnbits | jq -r ".[0].state")
+    pending=$(docker exec lnbits-legend-eclair-1 curl -s http://localhost:8080/channels -X POST -u :lnbits| jq '. | length')
+    echo "eclair-1 pendingchannels: $pending, current state: $state"
+    if [[ "$state" == "NORMAL" ]]; then
+      break
+    fi
+    sleep 1
+  done
+}
+
 
 # args(i)
 fund_clightning_node() {
@@ -101,7 +114,7 @@ lnbits-lightning-sync(){
 lnbits-lightning-init(){
 
   # create 10 UTXOs for each node
-  for i in 0 1 2 3 4; do
+  for i in 0 1 2; do
     fund_clightning_node 1
     fund_clightning_node 2
     fund_clightning_node 3
@@ -176,6 +189,13 @@ lnbits-lightning-init(){
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 3
 
+  # lnd-1 -> eclair-1
+  lncli-sim 1 connect $(get-eclair-pubkey)@lnbits-legend-eclair-1 > /dev/null
+  echo "open channel from lnd-2 to eclair-1"
+  lncli-sim 1 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate $channel_confirms > /dev/null
+  wait-for-lnd-channel 1
+
   # lnd-2 -> eclair-1
   lncli-sim 2 connect $(get-eclair-pubkey)@lnbits-legend-eclair-1 > /dev/null
   echo "open channel from lnd-2 to eclair-1"
@@ -186,6 +206,8 @@ lnbits-lightning-init(){
   wait-for-clightning-channel 1
   wait-for-clightning-channel 2
   wait-for-clightning-channel 3
+
+  wait-for-eclair-channel
 
   lnbits-lightning-sync
 

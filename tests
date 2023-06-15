@@ -20,8 +20,8 @@ run(){
 }
 
 failed="false"
-blockheight=207
-utxos=5
+blockheight=213
+utxos=3
 channel_size=24000000 # 0.024 btc
 balance_size=12000000 # 0.012 btc
 
@@ -36,7 +36,9 @@ for i in 1 2 3; do
   run "lnd-$i .synced_to_chain" "true" $(lncli-sim $i getinfo | jq -r ".synced_to_chain")
   run "lnd-$i utxo count" $utxos $(lncli-sim $i listunspent | jq -r ".utxos | length")
   run "lnd-$i .block_height" $blockheight $(lncli-sim $i getinfo | jq -r ".block_height")
-  if [[ "$i" == "2" ]]; then
+  if [[ "$i" == "1" ]]; then
+    channel_count=5
+  elif [[ "$i" == "2" ]]; then
     channel_count=3
   else
     channel_count=4
@@ -54,7 +56,8 @@ for i in 1 2 3; do
   run "cln-$i channel[0].channel_sat" $balance_size $(lightning-cli-sim $i listfunds | jq -r ".channels[0].channel_sat")
 done
 
-run "eclair-1 openchannels" 1 $(docker exec lnbits-legend-eclair-1 curl -s http://localhost:8080/channels -X POST -u :lnbits| jq '. | length')
+run "eclair-1 openchannels" 2 $(docker exec lnbits-legend-eclair-1 curl -s http://localhost:8080/channels -X POST -u :lnbits| jq '. | length')
+run "eclair-1 blockHeight" $blockheight $(docker exec lnbits-legend-eclair-1 curl -s http://localhost:8080/getinfo -X POST -u :lnbits| jq '.blockHeight')
 run "lnbits service status" "200" $(curl -s -o /dev/null -w "%{http_code}" "http://localhost:5001/")
 
 # return non-zero exit code if a test fails

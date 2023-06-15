@@ -27,10 +27,11 @@ services:
   bitcoind:
     hostname: bitcoind
     image: boltz/bitcoin-core:25.0
-    command: "-regtest -fallbackfee=0.00000253 -zmqpubrawtx=tcp://0.0.0.0:29000 -zmqpubrawblock=tcp://0.0.0.0:29001 -txindex -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=lnbits -rpcpassword=lnbits"
+    command: "-regtest -fallbackfee=0.00000253 -zmqpubrawtx=tcp://0.0.0.0:29000 -zmqpubrawblock=tcp://0.0.0.0:29001 -zmqpubhashblock=tcp://0.0.0.0:29002 -txindex -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=lnbits -rpcpassword=lnbits -addresstype=bech32 -changetype=bech32 -dbcache=2048 -rpcworkqueue=256"
     expose:
       - 29000
       - 29001
+      - 29002
       - 18443
       - 18444
 
@@ -132,7 +133,7 @@ services:
       - bitcoind
     image: boltz/eclair:0.8.0
     restart: on-failure
-    entrypoint: "sh -c 'sleep 20; /eclair-node/bin/eclair-node.sh -Declair.datadir=/root/eclair -Declair.printToConsole'"
+    entrypoint: "sh -c 'JAVA_OPTS=-Xmx512m /eclair-node/bin/eclair-node.sh -Declair.datadir=/root/eclair -Declair.printToConsole'"
     ports:
       - 8082:8080
     expose:
