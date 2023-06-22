@@ -1,31 +1,6 @@
 version: "3.7"
 services:
 
-  lnbits:
-    hostname: lnbits
-    depends_on:
-      - boltz
-      - mempool-api
-      - lnd-3
-    image: lnbitsdocker/lnbits-legend
-    restart: on-failure
-    user: "0:0"
-    entrypoint: "sh -c 'sleep 30; poetry run lnbits'"
-    environment:
-      HOST: lnbits
-      PORT: 5001
-      DEBUG: true
-      LNBITS_BACKEND_WALLET_CLASS: "LndRestWallet"
-      LNBITS_DATA_FOLDER: "./data"
-      LND_REST_ENDPOINT: "https://lnd-3:8081/"
-      LND_REST_CERT: "./lnd/tls.cert"
-      LND_REST_MACAROON: "./lnd/data/chain/bitcoin/regtest/admin.macaroon"
-    ports:
-      - 5001:5001
-    volumes:
-      - lnbits-data:/app/data
-      - ./data/lnd-3:/app/lnd:uid=1000,gid=1000
-
   boltz:
     hostname: boltz
     depends_on:
@@ -71,42 +46,6 @@ services:
     volumes:
       - ./data/clightning-1:/root/.lightning/
 
-  clightning-2:
-    hostname: clightning-2
-    depends_on:
-      - bitcoind
-    image: boltz/c-lightning:22.11.1
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
-    expose:
-      - 9735
-    volumes:
-      - ./data/clightning-2:/root/.lightning/
-
-  clightning-2-rest:
-    hostname: clightning-2-rest
-    depends_on:
-      - clightning-2
-    image: saubyk/c-lightning-rest:0.10.1
-    entrypoint: "sh -c 'sleep 35 && /sbin/tini -g -- ./docker-entrypoint.sh'"
-    ports:
-      - 3001:3001
-    expose:
-      - 3001
-    volumes:
-      - ./data/clightning-2:/root/.lightning/:uid=1000,gid=1000
-      - ./data/clightning-2-rest:/usr/src/app/certs/
-
-  clightning-3:
-    hostname: clightning-3
-    depends_on:
-      - bitcoind
-    image: boltz/c-lightning:23.02.2
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
-    expose:
-      - 9735
-    volumes:
-      - ./data/clightning-3:/root/.lightning/
-
   lnd-1:
     hostname: lnd-1
     depends_on:
@@ -114,9 +53,6 @@ services:
     image: boltz/lnd:0.15.5-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
-    ports:
-      - 8081:8081
-      - 10009:10009
     expose:
       - 8081
       - 9735
@@ -137,35 +73,6 @@ services:
       - 10009
     volumes:
       - ./data/lnd-2:/root/.lnd/
-
-  lnd-3:
-    hostname: lnd-3
-    depends_on:
-      - bitcoind
-    image: boltz/lnd:0.15.5-beta
-    restart: on-failure
-    entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-3:9735 --rpclisten=lnd-3:10009 --restlisten=lnd-3:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
-    expose:
-      - 8081
-      - 9735
-      - 10009
-    volumes:
-      - ./data/lnd-3:/root/.lnd/
-
-  eclair:
-    hostname: eclair
-    depends_on:
-      - bitcoind
-    image: boltz/eclair:0.8.0
-    restart: on-failure
-    entrypoint: "sh -c 'sleep 20; /eclair-node/bin/eclair-node.sh -Declair.datadir=/root/eclair -Declair.printToConsole'"
-    ports:
-      - 8082:8080
-    expose:
-      - 9735
-      - 8080
-    volumes:
-      - ./data/eclair:/root/eclair
 
   electrs:
     depends_on:
