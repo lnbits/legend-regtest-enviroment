@@ -1,12 +1,11 @@
-version: "3.7"
 services:
 
   boltz:
     hostname: boltz
     depends_on:
       - lnd-2
+    restart: always
     image: boltz/boltz:3.3.0
-    entrypoint: "sh -c 'sleep 40; /boltz-backend/bin/boltzd'"
     ports:
       - 9000:9000
       - 9001:9001
@@ -17,7 +16,16 @@ services:
   bitcoind:
     hostname: bitcoind
     image: boltz/bitcoin-core:24.0.1
-    command: "-regtest -fallbackfee=0.00000253 -zmqpubrawtx=tcp://0.0.0.0:29000 -zmqpubrawblock=tcp://0.0.0.0:29001 -txindex -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=lnbits -rpcpassword=lnbits"
+    command:
+      - -regtest
+      - -fallbackfee=0.00000253
+      - -zmqpubrawtx=tcp://0.0.0.0:29000
+      - -zmqpubrawblock=tcp://0.0.0.0:29001
+      - -txindex
+      - -rpcallowip=0.0.0.0/0
+      - -rpcbind=0.0.0.0
+      - -rpcuser=regtest
+      - -rpcpassword=regtest
     expose:
       - 29000
       - 29001
@@ -37,10 +45,11 @@ services:
 
   clightning-1:
     hostname: clightning-1
+    restart: always
     depends_on:
       - bitcoind
     image: boltz/c-lightning:22.11.1
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
+    entrypoint: "lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=regtest --bitcoin-rpcpassword=regtest"
     expose:
       - 9735
     volumes:
@@ -51,8 +60,8 @@ services:
     depends_on:
       - bitcoind
     image: boltz/lnd:0.15.5-beta
-    restart: on-failure
-    entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
+    restart: always
+    entrypoint: "lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=regtest --bitcoind.rpcpass=regtest --noseedbackup --protocol.wumbo-channels"
     expose:
       - 8081
       - 9735
@@ -66,7 +75,7 @@ services:
       - bitcoind
     image: boltz/lnd:0.15.5-beta
     restart: on-failure
-    entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
+    entrypoint: "lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=regtest --bitcoind.rpcpass=regtest --noseedbackup --protocol.wumbo-channels"
     expose:
       - 8081
       - 9735
@@ -77,20 +86,23 @@ services:
   electrs:
     depends_on:
       - bitcoind
+    restart: always
     hostname: electrs
     image: getumbrel/electrs:latest
     environment:
-      ELECTRS_ELECTRUM_RPC_ADDR: "electrs:50001"
+      ELECTRS_LOG_FILTERS: "INFO"
+      ELECTRS_NETWORK: "regtest"
       ELECTRS_DAEMON_RPC_ADDR: "bitcoind:18443"
       ELECTRS_DAEMON_P2P_ADDR: "bitcoind:18444"
-    entrypoint: "sh -c 'sleep 15 && electrs'"
-    ports:
-      - 50001:50001
+      ELECTRS_ELECTRUM_RPC_ADDR: "0.0.0.0:50001"
     volumes:
       - ./data/electrs/:/data/.electrs/
+    ports:
+      - 50001:50001
 
   electrs-liquid:
     image: ghcr.io/vulpemventures/electrs-liquid:latest
+    restart: always
     hostname: electrs-liquid
     entrypoint:
       - /build/electrs
@@ -102,7 +114,7 @@ services:
       - --daemon-rpc-addr
       - elementsd:18884
       - --cookie
-      - lnbits:lnbits
+      - regtest:regtest
       - --http-addr
       - 0.0.0.0:30001
       - --electrum-rpc-addr
@@ -117,15 +129,26 @@ services:
       - 30001:30001
 
   mempool-web:
-    restart: on-failure
+    restart: always
     depends_on:
       - mempool-api
     environment:
       FRONTEND_HTTP_PORT: "8080"
-      BACKEND_MAINNET_HTTP_HOST: "mempool-api"
+      BACKEND_MAINNET_HTTP_HOST: mempool-api
     image: mempool/frontend:latest
     ports:
       - 8090:8080
+
+  mempool-web-liquid:
+    restart: always
+    depends_on:
+      - mempool-api-liquid
+    environment:
+      FRONTEND_HTTP_PORT: "8080"
+      BACKEND_MAINNET_HTTP_HOST: mempool-api-liquid
+    image: mempool/frontend:latest
+    ports:
+      - 8091:8080
 
   mempool-api:
     depends_on:
@@ -138,8 +161,8 @@ services:
       ELECTRUM_TLS_ENABLED: "false"
       CORE_RPC_HOST: bitcoind
       CORE_RPC_PORT: "18443"
-      CORE_RPC_USERNAME: "lnbits"
-      CORE_RPC_PASSWORD: "lnbits"
+      CORE_RPC_USERNAME: "regtest"
+      CORE_RPC_PASSWORD: "regtest"
       DATABASE_ENABLED: "true"
       DATABASE_HOST: "mempool-db"
       DATABASE_DATABASE: "mempool"
@@ -161,8 +184,8 @@ services:
       ELECTRUM_TLS_ENABLED: "false"
       CORE_RPC_HOST: elementsd
       CORE_RPC_PORT: "18884"
-      CORE_RPC_USERNAME: "lnbits"
-      CORE_RPC_PASSWORD: "lnbits"
+      CORE_RPC_USERNAME: "regtest"
+      CORE_RPC_PASSWORD: "regtest"
       DATABASE_ENABLED: "true"
       DATABASE_HOST: "mempool-db"
       DATABASE_DATABASE: "mempool_liquid"
@@ -171,17 +194,6 @@ services:
       STATISTICS_ENABLED: "true"
     image: mempool/backend:latest
     restart: on-failure
-
-  mempool-web-liquid:
-    restart: on-failure
-    depends_on:
-      - mempool-api-liquid
-    environment:
-      FRONTEND_HTTP_PORT: "8080"
-      BACKEND_MAINNET_HTTP_HOST: "mempool-api-liquid"
-    image: mempool/frontend:latest
-    ports:
-      - 8091:8080
 
   mempool-db:
     environment:
@@ -194,6 +206,3 @@ services:
         echo 'CREATE DATABASE IF NOT EXISTS mempool; CREATE DATABASE IF NOT EXISTS mempool_liquid; GRANT ALL ON *.* TO 'mempool';' > /docker-entrypoint-initdb.d/init.sql;
         /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
       "
-
-volumes:
-  lnbits-data:
