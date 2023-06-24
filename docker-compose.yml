@@ -102,6 +102,7 @@ services:
 
   electrs-liquid:
     image: ghcr.io/vulpemventures/electrs-liquid:latest
+    # image: vulpemventures/electrs
     restart: always
     hostname: electrs-liquid
     entrypoint:
@@ -133,34 +134,26 @@ services:
     depends_on:
       - mempool-api
     environment:
-      FRONTEND_HTTP_PORT: "8080"
+      # FRONTEND_HTTP_PORT: 8080
       BACKEND_MAINNET_HTTP_HOST: mempool-api
     image: mempool/frontend:latest
     ports:
       - 8090:8080
 
-  mempool-web-liquid:
-    restart: always
-    depends_on:
-      - mempool-api-liquid
-    environment:
-      FRONTEND_HTTP_PORT: "8081"
-      BACKEND_MAINNET_HTTP_HOST: mempool-api-liquid
-    image: mempool/frontend:latest
-    ports:
-      - 8091:8081
-
   mempool-api:
+    hostname: mempool-api
+    restart: always
     depends_on:
       - electrs
       - mempool-db
+    image: mempool/backend:latest
     environment:
       MEMPOOL_BACKEND: "electrum"
       ELECTRUM_HOST: electrs
-      ELECTRUM_PORT: "50002"
+      ELECTRUM_PORT: 50002
       ELECTRUM_TLS_ENABLED: "false"
       CORE_RPC_HOST: bitcoind
-      CORE_RPC_PORT: "18443"
+      CORE_RPC_PORT: 18443
       CORE_RPC_USERNAME: "regtest"
       CORE_RPC_PASSWORD: "regtest"
       DATABASE_ENABLED: "true"
@@ -169,21 +162,39 @@ services:
       DATABASE_USERNAME: "mempool"
       DATABASE_PASSWORD: "mempool"
       STATISTICS_ENABLED: "true"
-    image: mempool/backend:latest
-    restart: on-failure
+
+  mempool-web-liquid:
+    restart: always
+    depends_on:
+      - mempool-api-liquid
+    environment:
+      BACKEND_MAINNET_HTTP_HOST: mempool-api-liquid
+      # BACKEND_MAINNET_HTTP_PORT: 8998
+      TESTNET_ENABLED: true
+      SIGNET_ENABLED: true
+      LIQUID_ENABLED: true
+      LIQUID_TESTNET_ENABLED: true
+      BASE_MODULE: 'liquid'
+    image: mempool/frontend:latest
+    ports:
+      - 8091:8080
 
   mempool-api-liquid:
+    hostname: mempool-api-liquid
+    restart: always
     depends_on:
       - electrs-liquid
       - mempool-db-liquid
+    image: mempool/backend:latest
     environment:
       MEMPOOL_NETWORK: "liquid"
       MEMPOOL_BACKEND: "esplora"
-      ELECTRUM_HOST: electrs-liquid
-      ELECTRUM_PORT: "50001"
-      ELECTRUM_TLS_ENABLED: "false"
+      ESPLORA_REST_API_URL: "http://electrs-liquid:30001/"
+      # ELECTRUM_HOST: electrs-liquid
+      # ELECTRUM_PORT: 50001
+      # ELECTRUM_TLS_ENABLED: "false"
       CORE_RPC_HOST: elementsd
-      CORE_RPC_PORT: "18884"
+      CORE_RPC_PORT: 18884
       CORE_RPC_USERNAME: "regtest"
       CORE_RPC_PASSWORD: "regtest"
       DATABASE_ENABLED: "true"
@@ -191,9 +202,7 @@ services:
       DATABASE_DATABASE: "mempool"
       DATABASE_USERNAME: "mempool"
       DATABASE_PASSWORD: "mempool"
-      STATISTICS_ENABLED: "true"
-    image: mempool/backend:latest
-    restart: on-failure
+      # STATISTICS_ENABLED: "true"
 
   mempool-db:
     environment:
