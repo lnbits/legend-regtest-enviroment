@@ -1,26 +1,26 @@
 #!/bin/sh
-export COMPOSE_PROJECT_NAME=lnbits-legend
+export COMPOSE_PROJECT_NAME=regtest
 
 bitcoin-cli-sim() {
-  docker exec lnbits-legend-bitcoind-1 bitcoin-cli -rpcuser=lnbits -rpcpassword=lnbits -regtest "$@"
+  docker exec regtest-bitcoind-1 bitcoin-cli -rpcuser=regtest -rpcpassword=regtest -regtest "$@"
 }
 
 elements-cli-sim() {
-  docker exec -it lnbits-legend-elementsd-1 elements-cli "$@"
+  docker exec -it regtest-elementsd-1 elements-cli "$@"
 }
 
 # args(i, cmd)
 lightning-cli-sim() {
   i=$1
   shift # shift first argument so we can use $@
-  docker exec lnbits-legend-clightning-$i-1 lightning-cli --network regtest "$@"
+  docker exec regtest-clightning-$i-1 lightning-cli --network regtest "$@"
 }
 
 # args(i, cmd)
 lncli-sim() {
   i=$1
   shift # shift first argument so we can use $@
-  docker exec lnbits-legend-lnd-$i-1 lncli --network regtest --rpcserver=lnd-$i:10009 "$@"
+  docker exec regtest-lnd-$i-1 lncli --network regtest --rpcserver=lnd-$i:10009 "$@"
 }
 
 # args(i)
@@ -40,22 +40,22 @@ fund_lnd_node() {
 # args(i, j)
 connect_clightning_node() {
   pubkey=$(lightning-cli-sim $2 getinfo | jq -r '.id')
-  lightning-cli-sim $1 connect $pubkey@lnbits-legend-clightning-$2-1:9735 | jq -r '.id'
+  lightning-cli-sim $1 connect $pubkey@regtest-clightning-$2-1:9735 | jq -r '.id'
 }
 
-lnbits-regtest-start(){
-  lnbits-regtest-stop
+regtest-start(){
+  regtest-stop
   docker compose up -d --remove-orphans
-  lnbits-regtest-init
+  regtest-init
 }
 
-lnbits-regtest-start-log(){
-  lnbits-regtest-stop
+regtest-start-log(){
+  regtest-stop
   docker compose up --remove-orphans
-  lnbits-regtest-init
+  regtest-init
 }
 
-lnbits-regtest-stop(){
+regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
   sudo rm -rf ./data/clightning-1 ./data/lnd-1  ./data/lnd-2 ./data/boltz/boltz.db ./data/elements/liquidregtest
@@ -63,38 +63,39 @@ lnbits-regtest-stop(){
   mkdir ./data/clightning-1 ./data/lnd-1 ./data/lnd-2
 }
 
-lnbits-regtest-restart(){
-  lnbits-regtest-stop
-  lnbits-regtest-start
+regtest-restart(){
+  regtest-stop
+  regtest-start
 }
 
-lnbits-bitcoin-init(){
+bitcoin-init(){
   echo "init_bitcoin_wallet..."
-  bitcoin-cli-sim createwallet lnbits || bitcoin-cli-sim loadwallet lnbits
-  echo "mining 150 blocks..."
+  bitcoin-cli-sim createwallet regtest || bitcoin-cli-sim loadwallet regtest
+  echo "mining 150 bitcoin blocks..."
   bitcoin-cli-sim -generate 150 > /dev/null
 }
 
-lnbits-elements-init(){
-  elements-cli-sim createwallet lnbits || elements-cli-sim loadwallet lnbits
-  elements-cli-sim -generate 1
+elements-init(){
+  elements-cli-sim createwallet regtest || elements-cli-sim loadwallet regtest
+  elements-cli-sim -generate 150
+  echo "mining 150 liquid blocks..."
   elements-cli-sim rescanblockchain 0 > /dev/null
 }
 
-lnbits-regtest-init(){
-  lnbits-bitcoin-init
-  lnbits-elements-init
-  lnbits-lightning-sync
-  lnbits-lightning-init
+regtest-init(){
+  bitcoin-init
+  elements-init
+  lightning-sync
+  lightning-init
 }
 
-lnbits-lightning-sync(){
+lightning-sync(){
   wait-for-clightning-sync 1
   wait-for-lnd-sync 1
   wait-for-lnd-sync 2
 }
 
-lnbits-lightning-init(){
+lightning-init(){
   # create 10 UTXOs for each node
   for i in 0 1 2 3 4; do
     fund_clightning_node 1
@@ -105,7 +106,7 @@ lnbits-lightning-init(){
   echo "mining 3 blocks..."
   bitcoin-cli-sim -generate 3 > /dev/null
 
-  lnbits-lightning-sync
+  lightning-sync
 
   channel_confirms=6
   channel_size=24000000 # 0.024 btc
@@ -113,28 +114,28 @@ lnbits-lightning-init(){
   balance_size_msat=12000000000 # 0.12 btc
 
   # lnd-1 -> lnd-2
-  lncli-sim 1 connect $(lncli-sim 2 getinfo | jq -r '.identity_pubkey')@lnbits-legend-lnd-2-1 > /dev/null
+  lncli-sim 1 connect $(lncli-sim 2 getinfo | jq -r '.identity_pubkey')@regtest-lnd-2-1 > /dev/null
   echo "open channel from lnd-1 to lnd-2"
   lncli-sim 1 openchannel $(lncli-sim 2 getinfo | jq -r '.identity_pubkey') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
   # lnd-1 -> cln-1
-  lncli-sim 1 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@lnbits-legend-clightning-1-1 > /dev/null
+  lncli-sim 1 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@regtest-clightning-1-1 > /dev/null
   echo "open channel from lnd-1 to cln-1"
   lncli-sim 1 openchannel $(lightning-cli-sim 1 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
   # lnd-2 -> cln-1
-  lncli-sim 2 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@lnbits-legend-clightning-1-1 > /dev/null
+  lncli-sim 2 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@regtest-clightning-1-1 > /dev/null
   echo "open channel from lnd-2 to cln-1"
   lncli-sim 2 openchannel $(lightning-cli-sim 1 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 2
   wait-for-clightning-channel 1
 
-  lnbits-lightning-sync
+  lightning-sync
 
 }
 

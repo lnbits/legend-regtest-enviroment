@@ -1,3 +1,0 @@
-network="regtest"
-auth="lnbits:lnbits"
-wait_duration="45s"
