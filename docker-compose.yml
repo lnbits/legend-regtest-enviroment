@@ -129,6 +129,23 @@ services:
       - 50001:50001
       - 30001:30001
 
+  esplora:
+    image: blockstream/esplora:builder-liquid-regtest
+    restart: always
+    hostname: esplora
+    environment:
+      API_URL: "http://electrs-liquid:30001"
+    depends_on:
+      - electrs-liquid
+    expose:
+      - 50001:50001
+    ports:
+      - 8092:80
+    entrypoint:
+      - bash
+      - -c
+      - "/srv/explorer/run.sh liquid-regtest explorer"
+
   mempool-web:
     restart: always
     depends_on:
