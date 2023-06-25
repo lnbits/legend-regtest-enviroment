@@ -189,7 +189,7 @@ services:
     environment:
       MEMPOOL_NETWORK: "liquid"
       MEMPOOL_BACKEND: "esplora"
-      ESPLORA_REST_API_URL: "http://electrs-liquid:30001/"
+      ESPLORA_REST_API_URL: "http://electrs-liquid:30001"
       # ELECTRUM_HOST: electrs-liquid
       # ELECTRUM_PORT: 50001
       # ELECTRUM_TLS_ENABLED: "false"
