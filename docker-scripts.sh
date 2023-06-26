@@ -44,6 +44,21 @@ connect_clightning_node() {
 }
 
 regtest-start(){
+  if ! command -v jq &> /dev/null
+  then
+      echo "jq is not installed"
+      exit
+  fi
+  if ! command -v docker &> /dev/null
+  then
+      echo "docker is not installed"
+      exit
+  fi
+  if ! command -v docker version &> /dev/null
+  then
+      echo "dockerd is not running"
+      exit
+  fi
   regtest-stop
   docker compose up -d --remove-orphans
   regtest-init
