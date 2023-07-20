@@ -154,6 +154,13 @@ lnbits-lightning-init(){
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
+  # lnd-1 -> cln-2
+  lncli-sim 1 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@lnbits-legend-clightning-2-1 > /dev/null
+  echo "open channel from lnd-1 to cln-2"
+  lncli-sim 1 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate $channel_confirms > /dev/null
+  wait-for-lnd-channel 1
+
   # lnd-1 -> cln-3
   lncli-sim 1 connect $(lightning-cli-sim 3 getinfo | jq -r '.id')@lnbits-legend-clightning-3-1 > /dev/null
   echo "open channel from lnd-1 to cln-3"
@@ -172,13 +179,6 @@ lnbits-lightning-init(){
   lncli-sim 3 connect $(lightning-cli-sim 3 getinfo | jq -r '.id')@lnbits-legend-clightning-3-1 > /dev/null
   echo "open channel from lnd-3 to cln-1"
   lncli-sim 3 openchannel $(lightning-cli-sim 3 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
-  bitcoin-cli-sim -generate $channel_confirms > /dev/null
-  wait-for-lnd-channel 3
-
-  # lnd-3 -> cln-2
-  lncli-sim 3 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@lnbits-legend-clightning-2-1 > /dev/null
-  echo "open channel from lnd-3 to cln-2"
-  lncli-sim 3 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 3
 

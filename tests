@@ -37,11 +37,9 @@ for i in 1 2 3; do
   run "lnd-$i utxo count" $utxos $(lncli-sim $i listunspent | jq -r ".utxos | length")
   run "lnd-$i .block_height" $blockheight $(lncli-sim $i getinfo | jq -r ".block_height")
   if [[ "$i" == "1" ]]; then
-    channel_count=5
-  elif [[ "$i" == "2" ]]; then
-    channel_count=3
+    channel_count=6
   else
-    channel_count=4
+    channel_count=3
   fi
   run "lnd-$i openchannels" $channel_count $(lncli-sim $i listchannels | jq -r ".channels | length")
   run "lnd-$i .channels[0].capacity" $channel_size $(lncli-sim $i listchannels | jq -r ".channels[0].capacity")
