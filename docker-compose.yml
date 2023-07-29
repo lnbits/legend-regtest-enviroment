@@ -123,39 +123,24 @@ services:
       - --cors
       - "*"
       - --jsonrpc-import
+      - -vvvv
     depends_on:
       - elementsd
-    expose:
+    ports:
       - 50001:50001
       - 30001:30001
-
-  esplora:
-    image: blockstream/esplora:builder-liquid-regtest
-    restart: always
-    hostname: esplora
-    environment:
-      API_URL: "http://electrs-liquid:30001"
-    depends_on:
-      - electrs-liquid
-    expose:
-      - 50001:50001
-    ports:
-      - 8092:80
-    entrypoint:
-      - bash
-      - -c
-      - "/srv/explorer/run.sh liquid-regtest explorer"
 
   mempool-web:
     restart: always
     depends_on:
       - mempool-api
     environment:
-      # FRONTEND_HTTP_PORT: 8080
+      FRONTEND_HTTP_PORT: 8090
       BACKEND_MAINNET_HTTP_HOST: mempool-api
+      BACKEND_MAINNET_HTTP_PORT: 8999
     image: mempool/frontend:latest
     ports:
-      - 8090:8080
+      - 8090:8090
 
   mempool-api:
     hostname: mempool-api
@@ -165,6 +150,7 @@ services:
       - mempool-db
     image: mempool/backend:latest
     environment:
+      MEMPOOL_HTTP_PORT: 8999
       MEMPOOL_BACKEND: "electrum"
       ELECTRUM_HOST: electrs
       ELECTRUM_PORT: 50002
@@ -179,6 +165,8 @@ services:
       DATABASE_USERNAME: "mempool"
       DATABASE_PASSWORD: "mempool"
       STATISTICS_ENABLED: "true"
+    ports:
+      - 8999:8999
 
   mempool-web-liquid:
     restart: always
@@ -186,15 +174,13 @@ services:
       - mempool-api-liquid
     environment:
       BACKEND_MAINNET_HTTP_HOST: mempool-api-liquid
-      # BACKEND_MAINNET_HTTP_PORT: 8998
-      TESTNET_ENABLED: true
-      SIGNET_ENABLED: true
+      BACKEND_MAINNET_HTTP_PORT: 8998
+      FRONTEND_HTTP_PORT: 8091
       LIQUID_ENABLED: true
-      LIQUID_TESTNET_ENABLED: true
       BASE_MODULE: 'liquid'
     image: mempool/frontend:latest
     ports:
-      - 8091:8080
+      - 8091:8091
 
   mempool-api-liquid:
     hostname: mempool-api-liquid
@@ -204,12 +190,14 @@ services:
       - mempool-db-liquid
     image: mempool/backend:latest
     environment:
+      MEMPOOL_HTTP_PORT: 8998
+      # MEMPOOL_API_URL_PREFIX: "/liquid/api/v1/"
       MEMPOOL_NETWORK: "liquid"
-      MEMPOOL_BACKEND: "esplora"
-      ESPLORA_REST_API_URL: "http://electrs-liquid:30001"
-      # ELECTRUM_HOST: electrs-liquid
-      # ELECTRUM_PORT: 50001
-      # ELECTRUM_TLS_ENABLED: "false"
+      MEMPOOL_BACKEND: "electrum"
+      # ESPLORA_REST_API_URL: "http://electrs-liquid:30001"
+      ELECTRUM_HOST: electrs-liquid
+      ELECTRUM_PORT: 50001
+      ELECTRUM_TLS_ENABLED: "false"
       CORE_RPC_HOST: elementsd
       CORE_RPC_PORT: 18884
       CORE_RPC_USERNAME: "regtest"
@@ -219,9 +207,12 @@ services:
       DATABASE_DATABASE: "mempool"
       DATABASE_USERNAME: "mempool"
       DATABASE_PASSWORD: "mempool"
-      # STATISTICS_ENABLED: "true"
+      STATISTICS_ENABLED: "true"
+    ports:
+      - 8998:8998
 
   mempool-db:
+    hostname: mempool-db
     environment:
       MYSQL_DATABASE: "mempool"
       MYSQL_USER: "mempool"
@@ -230,6 +221,7 @@ services:
     image: mariadb:10.5.8
 
   mempool-db-liquid:
+    hostname: mempool-db-liquid
     environment:
       MYSQL_DATABASE: "mempool"
       MYSQL_USER: "mempool"
