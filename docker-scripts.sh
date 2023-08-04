@@ -61,12 +61,14 @@ regtest-start(){
   fi
   regtest-stop
   docker compose up -d --remove-orphans
+  sudo chown -R $USER ./data
   regtest-init
 }
 
 regtest-start-log(){
   regtest-stop
   docker compose up --remove-orphans
+  sudo chown -R $USER ./data
   regtest-init
 }
 
