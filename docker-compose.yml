@@ -124,6 +124,7 @@ services:
       - mempool-db
     image: mempool/backend:latest
     environment:
+      REDIS_ENABLED: false
       MEMPOOL_BACKEND: electrum
       ELECTRUM_HOST: electrs
       ELECTRUM_PORT: 50002
@@ -207,12 +208,15 @@ services:
       - mempool-db
     image: mempool/backend:latest
     environment:
+      REDIS_ENABLED: false
       BACKEND_HTTP_PORT: 8998
       MEMPOOL_NETWORK: liquid
       MEMPOOL_BACKEND: electrum
       ELECTRUM_HOST: electrs-liquid
       ELECTRUM_PORT: 50001
       ELECTRUM_TLS_ENABLED: false
+      # MEMPOOL_BACKEND: esplora
+      # ESPLORA_REST_API_URL: http://electrs-liquid:30001
       CORE_RPC_HOST: elementsd
       CORE_RPC_PORT: 18884
       CORE_RPC_USERNAME: regtest
