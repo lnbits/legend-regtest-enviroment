@@ -1,3 +1,0 @@
-network="regtest"
-auth="regtest:regtest"
-wait_duration="45s"

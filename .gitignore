@@ -1,7 +1,5 @@
 data
+
 !data/boltz
 data/boltz/*
 !data/boltz/boltz.conf
-!data/electrs
-data/electrs/*
-!data/electrs/config.toml

@@ -88,15 +88,24 @@ services:
       - bitcoind
     restart: always
     hostname: electrs
-    image: getumbrel/electrs:latest
-    environment:
-      ELECTRS_LOG_FILTERS: "INFO"
-      ELECTRS_NETWORK: "regtest"
-      ELECTRS_DAEMON_RPC_ADDR: "bitcoind:18443"
-      ELECTRS_DAEMON_P2P_ADDR: "bitcoind:18444"
-      ELECTRS_ELECTRUM_RPC_ADDR: "0.0.0.0:50002"
+    image: mempool/electrs:latest
+    command:
+      - --network
+      - regtest
+      - --daemon-rpc-addr
+      - bitcoind:18443
+      - --cookie
+      - regtest:regtest
+      - --http-addr
+      - 0.0.0.0:50002
+      - --cors
+      - "*"
+      - --jsonrpc-import
+      - -vvvv
     volumes:
       - ./data/electrs/:/data/.electrs/
+    expose:
+      - 50002
     ports:
       - 50002:50002
 
@@ -125,10 +134,9 @@ services:
     image: mempool/backend:latest
     environment:
       REDIS_ENABLED: false
-      MEMPOOL_BACKEND: electrum
-      ELECTRUM_HOST: electrs
-      ELECTRUM_PORT: 50002
-      ELECTRUM_TLS_ENABLED: false
+      MEMPOOL_BACKEND: esplora
+      ESPLORA_REST_API_URL: http://electrs:50002
+      # ESPLORA_UNIX_SOCKET_PATH": "/socket/esplora-regtest",
       CORE_RPC_HOST: bitcoind
       CORE_RPC_PORT: 18443
       CORE_RPC_USERNAME: regtest
@@ -152,13 +160,13 @@ services:
       MYSQL_ROOT_PASSWORD: "admin"
     image: mariadb:10.5.8
 
-  # LIQUID
+
   electrs-liquid:
-    image: ghcr.io/vulpemventures/electrs-liquid:latest
+    depends_on:
+      - bitcoind
     restart: always
     hostname: electrs-liquid
-    entrypoint:
-      - /build/electrs
+    image: mempool/electrs:latest
     command:
       - --parent-network
       - regtest
@@ -169,15 +177,13 @@ services:
       - --cookie
       - regtest:regtest
       - --http-addr
-      - 0.0.0.0:30001
-      - --electrum-rpc-addr
       - 0.0.0.0:50001
       - --cors
       - "*"
       - --jsonrpc-import
       - -vvvv
-    depends_on:
-      - elementsd
+    volumes:
+      - ./data/electrs-liquid/:/data/.electrs/
     ports:
       - 50001:50001
       - 30001:30001
@@ -211,12 +217,9 @@ services:
       REDIS_ENABLED: false
       BACKEND_HTTP_PORT: 8998
       MEMPOOL_NETWORK: liquid
-      MEMPOOL_BACKEND: electrum
-      ELECTRUM_HOST: electrs-liquid
-      ELECTRUM_PORT: 50001
-      ELECTRUM_TLS_ENABLED: false
-      # MEMPOOL_BACKEND: esplora
-      # ESPLORA_REST_API_URL: http://electrs-liquid:30001
+      MEMPOOL_BACKEND: esplora
+      ESPLORA_REST_API_URL: http://electrs-liquid:50001
+      # ESPLORA_UNIX_SOCKET_PATH": "/socket/esplora-liquid-regtest",
       CORE_RPC_HOST: elementsd
       CORE_RPC_PORT: 18884
       CORE_RPC_USERNAME: regtest
