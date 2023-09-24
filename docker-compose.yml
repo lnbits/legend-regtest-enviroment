@@ -66,6 +66,9 @@ services:
       - 8081
       - 9735
       - 10009
+    ports:
+      - 8081:8081
+      - 10009:10009
     volumes:
       - ./data/lnd-1:/root/.lnd/
 
