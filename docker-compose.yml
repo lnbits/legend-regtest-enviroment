@@ -60,7 +60,7 @@ services:
     hostname: clightning-2-rest
     depends_on:
       - clightning-2
-    image: saubyk/c-lightning-rest:0.10.1
+    image: saubyk/c-lightning-rest:0.10.6
     entrypoint: "sh -c 'sleep 35 && /sbin/tini -g -- ./docker-entrypoint.sh'"
     ports:
       - 3001:3001
