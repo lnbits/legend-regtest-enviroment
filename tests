@@ -50,8 +50,8 @@ for i in 1 2 3; do
   run "cln-$i utxo count" $utxos $(lightning-cli-sim $i listfunds | jq -r ".outputs | length")
   run "cln-$i openchannels" 2 $(lightning-cli-sim $i getinfo | jq -r ".num_active_channels")
   run "cln-$i channel[0].state" "CHANNELD_NORMAL" $(lightning-cli-sim $i listfunds | jq -r ".channels[0].state")
-  run "cln-$i channel[0].amount_msat" $(($channel_size * 1000)) $(lightning-cli-sim $i listfunds | jq -r ".channels[0].amount_msat")
-  run "cln-$i channel[0].our_amount_msat" $(($balance_size * 1000)) $(lightning-cli-sim $i listfunds | jq -r ".channels[0].our_amount_msat")
+  run "cln-$i channel[0].amount_msat" $(($channel_size * 1000)) $(lightning-cli-sim $i listfunds | jq -r ".channels[0].amount_msat" | sed 's/msat//g')
+  run "cln-$i channel[0].our_amount_msat" $(($balance_size * 1000)) $(lightning-cli-sim $i listfunds | jq -r ".channels[0].our_amount_msat" | sed 's/msat//g')
 done
 
 run "eclair-1 openchannels" 2 $(docker exec lnbits-legend-eclair-1 curl -s http://localhost:8080/channels -X POST -u :lnbits| jq '. | length')
