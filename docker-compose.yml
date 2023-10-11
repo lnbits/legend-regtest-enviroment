@@ -104,6 +104,20 @@ services:
     ports:
       - 8090:8090
 
+  electrs-liquid:
+    hostname: electrs-liquid
+    restart: always
+    image: blockstream/esplora:electrs-latest
+    environment:
+      ELECTRS_ELECTRUM_RPC_ADDR: "electrs:50001"
+      ELECTRS_DAEMON_RPC_ADDR: "bitcoind:18443"
+      ELECTRS_DAEMON_P2P_ADDR: "bitcoind:18444"
+    entrypoint: "./electrs_liquid/bin/electrs --daemon-rpc-addr elementsd:18884 --daemon-dir /home/elements/.elements --network liquidregtest --parent-network regtest --jsonrpc-import -vvvv"
+    ports:
+      - 19002:51401
+    volumes:
+      - ./data/elements:/home/elements/.elements
+
   mempool-api:
     hostname: mempool-api
     restart: always
