@@ -9,6 +9,7 @@ services:
     ports:
       - 9000:9000
       - 9001:9001
+    entrypoint: "sh -c 'sleep 30; /boltz-backend/bin/boltzd'"
     volumes:
       - ./data/lnd-2:/data/lnd/
       - ./data/boltz/:/root/.boltz/
