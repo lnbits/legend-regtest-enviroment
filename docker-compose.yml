@@ -12,6 +12,7 @@ services:
     volumes:
       - ./data/lnd-2:/data/lnd/
       - ./data/boltz/:/root/.boltz/
+      - ./data/elements/:/root/.elements/
 
   bitcoind:
     hostname: bitcoind
@@ -112,9 +113,12 @@ services:
       ELECTRS_ELECTRUM_RPC_ADDR: "electrs:50001"
       ELECTRS_DAEMON_RPC_ADDR: "bitcoind:18443"
       ELECTRS_DAEMON_P2P_ADDR: "bitcoind:18444"
-    entrypoint: "./electrs_liquid/bin/electrs --daemon-rpc-addr elementsd:18884 --daemon-dir /home/elements/.elements --network liquidregtest --parent-network regtest --jsonrpc-import -vvvv"
+    entrypoint: "./electrs_liquid/bin/electrs --electrum-rpc-addr electrs-liquid:19002  --http-addr electrs-liquid:19003 --daemon-rpc-addr elementsd:18884 --daemon-dir /home/elements/.elements --network liquidregtest --parent-network regtest --jsonrpc-import -vvvv"
     ports:
-      - 19002:51401
+      - 51401:51401
+      - 3002:3002
+      - 19002:19002
+      - 19003:19003
     volumes:
       - ./data/elements:/home/elements/.elements
 
