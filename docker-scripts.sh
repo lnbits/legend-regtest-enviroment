@@ -93,9 +93,9 @@ bitcoin-init(){
 }
 
 elements-init(){
-  elements-cli-sim createwallet regtest || elements-cli-sim loadwallet regtest
-  elements-cli-sim -generate 150
+  elements-cli-sim createwallet regtest || elements-cli-sim loadwallet regtest true
   echo "mining 150 liquid blocks..."
+  elements-cli-sim -generate 150 > /dev/null
   elements-cli-sim rescanblockchain 0 > /dev/null
 }
 

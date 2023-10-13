@@ -63,7 +63,7 @@ services:
     hostname: lnd-1
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.15.5-beta
+    image: boltz/lnd:0.17.0-beta
     restart: always
     entrypoint: "lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=regtest --bitcoind.rpcpass=regtest --noseedbackup --protocol.wumbo-channels"
     expose:
@@ -80,7 +80,7 @@ services:
     hostname: lnd-2
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.15.5-beta
+    image: boltz/lnd:0.17.0-beta
     restart: on-failure
     entrypoint: "lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=regtest --bitcoind.rpcpass=regtest --noseedbackup --protocol.wumbo-channels"
     expose:
@@ -114,7 +114,7 @@ services:
       ELECTRS_ELECTRUM_RPC_ADDR: "electrs:50001"
       ELECTRS_DAEMON_RPC_ADDR: "bitcoind:18443"
       ELECTRS_DAEMON_P2P_ADDR: "bitcoind:18444"
-    entrypoint: "./electrs_liquid/bin/electrs --electrum-rpc-addr electrs-liquid:19002  --http-addr electrs-liquid:19003 --daemon-rpc-addr elementsd:18884 --daemon-dir /home/elements/.elements --network liquidregtest --parent-network regtest --jsonrpc-import -vvvv"
+    entrypoint: "./electrs_liquid/bin/electrs --electrum-rpc-addr electrs-liquid:19002  --http-addr electrs-liquid:19003 --daemon-rpc-addr elementsd:18884 --daemon-dir /home/elements/.elements --cookie regtest:regtest --network liquidregtest --parent-network regtest --jsonrpc-import -vvvv"
     ports:
       - 51401:51401
       - 3002:3002
