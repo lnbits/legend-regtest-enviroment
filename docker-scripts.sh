@@ -6,7 +6,7 @@ bitcoin-cli-sim() {
 }
 
 elements-cli-sim() {
-  docker exec -it regtest-elementsd-1 elements-cli "$@"
+  docker exec regtest-elementsd-1 elements-cli "$@"
 }
 
 # args(i, cmd)
