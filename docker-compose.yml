@@ -116,8 +116,6 @@ services:
       ELECTRS_DAEMON_P2P_ADDR: "bitcoind:18444"
     entrypoint: "./electrs_liquid/bin/electrs --electrum-rpc-addr electrs-liquid:19002  --http-addr electrs-liquid:19003 --daemon-rpc-addr elementsd:18884 --daemon-dir /home/elements/.elements --cookie regtest:regtest --network liquidregtest --parent-network regtest --jsonrpc-import -vvvv"
     ports:
-      - 51401:51401
-      - 3002:3002
       - 19002:19002
       - 19003:19003
     volumes:
