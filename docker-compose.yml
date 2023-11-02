@@ -1,18 +1,19 @@
 services:
-
   boltz:
     hostname: boltz
     depends_on:
       - lnd-2
+      - elementsd
+      - bitcoind
     restart: always
     image: boltz/boltz:3.3.0
     ports:
       - 9000:9000
       - 9001:9001
-    entrypoint: "sh -c 'sleep 30; /boltz-backend/bin/boltzd'"
     volumes:
       - ./data/lnd-2:/data/lnd/
       - ./data/boltz/:/root/.boltz/
+      - ./data/elements/:/root/.elements/
 
   bitcoind:
     hostname: bitcoind
@@ -42,7 +43,7 @@ services:
       - 31001
       - 31002
     volumes:
-      - ./data/elements:/home/elements/.elements
+      - ./data/elements/elements.conf:/home/elements/.elements/elements.conf
 
   clightning-1:
     hostname: clightning-1
@@ -50,7 +51,7 @@ services:
     depends_on:
       - bitcoind
     image: boltz/c-lightning:23.08.1
-    entrypoint: "lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=regtest --bitcoin-rpcpassword=regtest --grpc-port=9736"
+    entrypoint: "lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=regtest --bitcoin-rpcpassword=regtest --grpc-port=9736 --dev-bitcoind-poll=3"
     expose:
       - 9735
     ports:
@@ -62,7 +63,7 @@ services:
     hostname: lnd-1
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.15.5-beta
+    image: boltz/lnd:0.17.0-beta
     restart: always
     entrypoint: "lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=regtest --bitcoind.rpcpass=regtest --noseedbackup --protocol.wumbo-channels"
     expose:
@@ -79,7 +80,7 @@ services:
     hostname: lnd-2
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.15.5-beta
+    image: boltz/lnd:0.17.0-beta
     restart: on-failure
     entrypoint: "lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=regtest --bitcoind.rpcpass=regtest --noseedbackup --protocol.wumbo-channels"
     expose:
@@ -88,35 +89,6 @@ services:
       - 10009
     volumes:
       - ./data/lnd-2:/root/.lnd/
-
-  electrs:
-    depends_on:
-      - bitcoind
-    restart: always
-    hostname: electrs
-    image: mempool/electrs:latest
-    command:
-      - --network
-      - regtest
-      - --daemon-rpc-addr
-      - bitcoind:18443
-      - --cookie
-      - regtest:regtest
-      - --http-addr
-      - 0.0.0.0:50002
-      - --http-socket-file
-      - /data/.electrs/socket/esplora-regtest
-      - --cors
-      - "*"
-      - --jsonrpc-import
-      - --address-search
-      - -vvvv
-    volumes:
-      - ./data/electrs/:/data/.electrs/
-    expose:
-      - 50002
-    ports:
-      - 50002:50002
 
   mempool-web:
     restart: always
@@ -133,21 +105,32 @@ services:
     image: mempool/frontend:latest
     ports:
       - 8090:8090
+
+  electrs-liquid:
+    hostname: electrs-liquid
+    restart: always
+    image: blockstream/esplora:electrs-latest
+    environment:
+      ELECTRS_ELECTRUM_RPC_ADDR: "electrs:50001"
+      ELECTRS_DAEMON_RPC_ADDR: "bitcoind:18443"
+      ELECTRS_DAEMON_P2P_ADDR: "bitcoind:18444"
+    entrypoint: "./electrs_liquid/bin/electrs --electrum-rpc-addr electrs-liquid:19002  --http-addr electrs-liquid:19003 --daemon-rpc-addr elementsd:18884 --daemon-dir /home/elements/.elements --cookie regtest:regtest --network liquidregtest --parent-network regtest --jsonrpc-import -vvvv"
+    ports:
+      - 19002:19002
+      - 19003:19003
     volumes:
-      - ./data/electrs/socket/:/socket/
+      - ./data/elements:/home/elements/.elements
 
   mempool-api:
     hostname: mempool-api
     restart: always
     depends_on:
-      - electrs
+      - bitcoind
       - mempool-db
     image: mempool/backend:latest
     environment:
       REDIS_ENABLED: false
-      MEMPOOL_BACKEND: esplora
-      ESPLORA_REST_API_URL: http://localhost:50002
-      ESPLORA_UNIX_SOCKET_PATH: /socket/esplora-regtest
+      MEMPOOL_BACKEND: "none"
       CORE_RPC_HOST: bitcoind
       CORE_RPC_PORT: 18443
       CORE_RPC_USERNAME: regtest
@@ -161,8 +144,6 @@ services:
       - 8999
     ports:
       - 8999:8999
-    volumes:
-      - ./data/electrs/socket/:/socket/
 
   mempool-db:
     hostname: mempool-db
@@ -173,42 +154,12 @@ services:
       MYSQL_ROOT_PASSWORD: "admin"
     image: mariadb:10.5.8
 
-
-  electrs-liquid:
-    depends_on:
-      - bitcoind
-    restart: always
-    hostname: electrs-liquid
-    image: mempool/electrs:latest
-    command:
-      - --parent-network
-      - regtest
-      - --network
-      - liquidregtest
-      - --daemon-rpc-addr
-      - elementsd:18884
-      - --cookie
-      - regtest:regtest
-      - --http-addr
-      - 0.0.0.0:50001
-      - --http-socket-file
-      - /data/.electrs/socket/esplora-liquid-regtest
-      - --cors
-      - "*"
-      - --jsonrpc-import
-      - -vvvv
-    entrypoint: /bin/electrs-liquid
-    volumes:
-      - ./data/electrs-liquid/:/data/.electrs/
-    ports:
-      - 50001:50001
-
   mempool-web-liquid:
     restart: always
     depends_on:
       - mempool-api-liquid
     environment:
-      BASE_MODULE: 'liquid'
+      BASE_MODULE: "liquid"
       LIQUID_ENABLED: true
       BISQ_ENABLED: false
       MEMPOOL_WEBSITE_URL: http://localhost:8090
@@ -220,23 +171,19 @@ services:
     image: mempool/frontend:latest
     ports:
       - 8091:8091
-    volumes:
-      - ./data/electrs-liquid/socket/:/socket/
 
   mempool-api-liquid:
     hostname: mempool-api-liquid
     restart: always
     depends_on:
-      - electrs-liquid
-      - mempool-db
+      - elementsd
+      - mempool-db-liquid
     image: mempool/backend:latest
     environment:
       REDIS_ENABLED: false
       BACKEND_HTTP_PORT: 8998
       MEMPOOL_NETWORK: liquid
-      MEMPOOL_BACKEND: esplora
-      ESPLORA_REST_API_URL: http://electrs-liquid:50001
-      ESPLORA_UNIX_SOCKET_PATH: /socket/esplora-liquid-regtest
+      MEMPOOL_BACKEND: "none"
       CORE_RPC_HOST: elementsd
       CORE_RPC_PORT: 18884
       CORE_RPC_USERNAME: regtest
@@ -250,8 +197,6 @@ services:
       - 8998
     ports:
       - 8998:8998
-    volumes:
-      - ./data/electrs-liquid/socket/:/socket/
 
   mempool-db-liquid:
     hostname: mempool-db-liquid
