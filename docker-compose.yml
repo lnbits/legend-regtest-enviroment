@@ -108,17 +108,6 @@ services:
     ports:
       - 8090:8090
 
-  electrs:
-    hostname: electrs
-    restart: always
-    image: blockstream/esplora:electrs-latest
-    entrypoint: "./electrs_bitcoin/bin/electrs --electrum-rpc-addr electrs:19004 --http-addr electrs:19005 --daemon-rpc-addr bitcoind:18443 --cookie regtest:regtest --network regtest --jsonrpc-import -vvvv"
-    ports:
-      - 19004:19004
-      - 19005:19005
-    volumes:
-      - ./data/bitcoin:/root/.bitcoin
-
   electrs-liquid:
     hostname: electrs-liquid
     restart: always
@@ -143,8 +132,8 @@ services:
     environment:
       REDIS_ENABLED: false
       BACKEND_HTTP_PORT: 8999
-      MEMPOOL_BACKEND: "esplora"
-      ESPLORA_REST_API_URL: http://electrs:19004
+      MEMPOOL_BACKEND: "none"
+      # ESPLORA_REST_API_URL: http://electrs:19004
       CORE_RPC_HOST: bitcoind
       CORE_RPC_PORT: 18443
       CORE_RPC_USERNAME: regtest
@@ -197,8 +186,8 @@ services:
       REDIS_ENABLED: false
       BACKEND_HTTP_PORT: 8998
       MEMPOOL_NETWORK: liquid
-      MEMPOOL_BACKEND: "esplora"
-      ESPLORA_REST_API_URL: http://electrs-liquid:19003
+      MEMPOOL_BACKEND: "none"
+      # ESPLORA_REST_API_URL: http://electrs-liquid:19003
       CORE_RPC_HOST: elementsd
       CORE_RPC_PORT: 18884
       CORE_RPC_USERNAME: regtest
