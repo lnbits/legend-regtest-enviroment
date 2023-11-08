@@ -6,7 +6,7 @@ services:
       - elementsd
       - bitcoind
     restart: always
-    image: boltz/boltz:3.3.0
+    image: boltz/boltz:latest
     ports:
       - 9000:9000
       - 9001:9001
@@ -14,6 +14,14 @@ services:
       - ./data/lnd-2:/data/lnd/
       - ./data/boltz/:/root/.boltz/
       - ./data/elements/:/root/.elements/
+
+  anvil:
+    hostname: anvil
+    image: ghcr.io/foundry-rs/foundry:latest
+    command:
+      - anvil --host 0.0.0.0
+    ports:
+      - 8545:8545
 
   bitcoind:
     hostname: bitcoind
