@@ -76,7 +76,7 @@ regtest-start-log(){
 regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/lnd-1  ./data/lnd-2 ./data/boltz/boltz.db ./data/elements/liquidregtest
+  sudo rm -rf ./data/clightning-1 ./data/lnd-1  ./data/lnd-2 ./data/boltz/boltz.db ./data/elements/liquidregtest ./data/bitcoin/regtest
   # recreate lightning node data folders preventing permission errors
   mkdir ./data/clightning-1 ./data/lnd-1 ./data/lnd-2
 }
