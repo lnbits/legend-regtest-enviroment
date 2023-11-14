@@ -35,19 +35,19 @@ poetry run uvicorn --host 0.0.0.0 --port 5000 --reload
 # usage
 get the regtest enviroment ready
 ```console
-git clone git@github.com:lnbits/lnbits-legend.git ~/repos/lnbits-legend
-cd ~/repos/lnbits-legend
-docker build -t lnbitsdocker/lnbits-legend .
-mkdir ~/repos/lnbits-legend/docker
-git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-legend/docker
-cd ~/repos/lnbits-legend/docker
+git clone https://github.com/lnbits/lnbits.git
+cd lnbits
+docker build -t lnbitsdocker/lnbits .
+mkdir docker
+git clone https://github.com/lnbits/legend-regtest-enviroment.git docker
+cd docker
 chmod +x ./tests
 ./tests # start the regtest and also run tests
 ```
 
 usage of the `bitcoin-cli-sim`, `lightning-cli-sim` and `lncli-sim` aliases
 ```console
-cd ~/repos/lnbits-legend/docker
+cd ~/lnbits/docker
 source docker-scripts.sh
 # use bitcoin core, mine a block
 bitcoin-cli-sim -generate 1
