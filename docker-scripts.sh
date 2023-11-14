@@ -39,7 +39,7 @@ connect_clightning_node() {
   lightning-cli-sim $1 connect $pubkey@cashu-clightning-$2-1:9735 | jq -r '.id'
 }
 
-lnbits-regtest-start(){
+cashu-regtest-start(){
   if ! command -v jq &> /dev/null
   then
       echo "jq is not installed"
@@ -55,18 +55,18 @@ lnbits-regtest-start(){
       echo "dockerd is not running"
       exit
   fi
-  lnbits-regtest-stop
+  cashu-regtest-stop
   docker compose up -d --remove-orphans
-  lnbits-regtest-init
+  cashu-regtest-init
 }
 
-lnbits-regtest-start-log(){
-  lnbits-regtest-stop
+cashu-regtest-start-log(){
+  cashu-regtest-stop
   docker compose up --remove-orphans
-  lnbits-regtest-init
+  cashu-regtest-init
 }
 
-lnbits-regtest-stop(){
+cashu-regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
   sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db
@@ -74,9 +74,9 @@ lnbits-regtest-stop(){
   mkdir ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3
 }
 
-lnbits-regtest-restart(){
-  lnbits-regtest-stop
-  lnbits-regtest-start
+cashu-regtest-restart(){
+  cashu-regtest-stop
+  cashu-regtest-start
 }
 
 lnbits-bitcoin-init(){
@@ -86,7 +86,7 @@ lnbits-bitcoin-init(){
   bitcoin-cli-sim -generate 150 > /dev/null
 }
 
-lnbits-regtest-init(){
+cashu-regtest-init(){
   lnbits-bitcoin-init
   lnbits-lightning-sync
   lnbits-lightning-init

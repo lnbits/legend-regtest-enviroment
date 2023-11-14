@@ -26,7 +26,7 @@ channel_size=24000000 # 0.024 btc
 balance_size=12000000 # 0.012 btc
 
 source docker-scripts.sh
-lnbits-regtest-start
+cashu-regtest-start
 echo "=================================="
 printf "\033[;1;36mregtest started! starting tests...\033[;0m\n"
 echo "=================================="
@@ -38,7 +38,9 @@ for i in 1 2 3; do
   run "lnd-$i .block_height" $blockheight $(lncli-sim $i getinfo | jq -r ".block_height")
   if [[ "$i" == "1" ]]; then
     channel_count=5
-  else
+  elif [[ "$i" == "3" ]]; then
+    channel_count=3
+  else 
     channel_count=2
   fi
   run "lnd-$i openchannels" $channel_count $(lncli-sim $i listchannels | jq -r ".channels | length")
