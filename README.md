@@ -10,10 +10,11 @@
 
 # Installing regtest 
 get the regtest enviroment ready
-```console
+```sh
 # Install docker https://docs.docker.com/engine/install/
-# Make sure your user has permission to use docker "sudo usermod -aG docker ${USER}" then reboot
-# Stop/start docker "sudo systemctl stop docker" "sudo systemctl start docker"
+# Make sure your user has permission to use docker 'sudo usermod -aG docker ${USER}' then reboot
+# Stop/start docker 'sudo systemctl stop docker' 'sudo systemctl start docker'
+
 sudo apt install jq
 git clone https://github.com/lnbits/lnbits.git
 cd lnbits
@@ -28,7 +29,7 @@ sudo chown -R $USER ./data # Give the data file permissions for user
 
 # Running LNbits on regtest
 add this ENV variables to your `.env` file
-```console
+```sh
 DEBUG=true
 
 # LND
@@ -50,7 +51,7 @@ make dev
 ```
 
 # testing
-```console
+```sh
   chmod +x ./tests
   ./tests
   # short answer :)
@@ -58,7 +59,7 @@ make dev
 ```
 
 usage of the `bitcoin-cli-sim`, `lightning-cli-sim` and `lncli-sim` aliases
-```console
+```sh
 cd ~/lnbits/docker
 source docker-scripts.sh
 # use bitcoin core, mine a block
@@ -81,7 +82,7 @@ lncli-sim 2 listpeers
 * lnbits: http://localhost:5001/
 
 # debugging docker logs
-```console
+```sh
 docker logs lnbits-legend-lnbits-1 -f
 docker logs lnbits-legend-boltz-1 -f
 docker logs lnbits-legend-clightning-1-1 -f
