@@ -126,20 +126,5 @@ services:
     volumes:
       - ./data/lnd-3:/root/.lnd/
 
-  eclair:
-    hostname: eclair
-    depends_on:
-      - bitcoind
-    image: boltz/eclair:0.8.0
-    restart: on-failure
-    entrypoint: "sh -c 'JAVA_OPTS=-Xmx512m /eclair-node/bin/eclair-node.sh -Declair.datadir=/root/eclair -Declair.printToConsole'"
-    ports:
-      - 8082:8080
-    expose:
-      - 9735
-      - 8080
-    volumes:
-      - ./data/eclair:/root/eclair
-
 volumes:
   lnbits-data:

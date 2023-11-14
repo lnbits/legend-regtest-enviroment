@@ -6,7 +6,6 @@
 * lnd-3: used for lnbits inside docker
 * cln-1: for locally testing your current lnbits
 * cln-2: used for clightning-REST
-* eclair-1: for locally testing your current lnbits
 
 # Installing regtest 
 get the regtest enviroment ready
@@ -35,8 +34,8 @@ DEBUG=true
 # LND
 LNBITS_BACKEND_WALLET_CLASS="LndRestWallet"
 LND_REST_ENDPOINT=https://127.0.0.1:8081/
-LND_REST_CERT=/home/user/repos/lnbits-legend/docker/data/lnd-1/tls.cert
-LND_REST_MACAROON=/home/user/repos/lnbits-legend/docker/data/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
+LND_REST_CERT=/home/user/repos/cashu/docker/data/lnd-1/tls.cert
+LND_REST_MACAROON=/home/user/repos/cashu/docker/data/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
 
 # CLN
 LNBITS_BACKEND_WALLET_CLASS="CoreLightningWallet"
@@ -83,8 +82,8 @@ lncli-sim 2 listpeers
 
 # debugging docker logs
 ```sh
-docker logs lnbits-legend-lnbits-1 -f
-docker logs lnbits-legend-boltz-1 -f
-docker logs lnbits-legend-clightning-1-1 -f
-docker logs lnbits-legend-lnd-2-1 -f
+docker logs cashu-lnbits-1 -f
+docker logs cashu-boltz-1 -f
+docker logs cashu-clightning-1-1 -f
+docker logs cashu-lnd-2-1 -f
 ```

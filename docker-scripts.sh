@@ -1,48 +1,23 @@
 #!/bin/sh
-export COMPOSE_PROJECT_NAME=lnbits-legend
+export COMPOSE_PROJECT_NAME=cashu
 
 bitcoin-cli-sim() {
-  docker exec lnbits-legend-bitcoind-1 bitcoin-cli -rpcuser=lnbits -rpcpassword=lnbits -regtest "$@"
+  docker exec cashu-bitcoind-1 bitcoin-cli -rpcuser=lnbits -rpcpassword=lnbits -regtest "$@"
 }
 
 # args(i, cmd)
 lightning-cli-sim() {
   i=$1
   shift # shift first argument so we can use $@
-  docker exec lnbits-legend-clightning-$i-1 lightning-cli --network regtest "$@"
+  docker exec cashu-clightning-$i-1 lightning-cli --network regtest "$@"
 }
 
 # args(i, cmd)
 lncli-sim() {
   i=$1
   shift # shift first argument so we can use $@
-  docker exec lnbits-legend-lnd-$i-1 lncli --network regtest --rpcserver=lnd-$i:10009 "$@"
+  docker exec cashu-lnd-$i-1 lncli --network regtest --rpcserver=lnd-$i:10009 "$@"
 }
-
-get-eclair-pubkey() {
-  while true; do
-    pubkey=$(docker exec lnbits-legend-eclair-1 curl http://localhost:8080/getinfo -X POST -s -u :lnbits | jq -r .nodeId 2> /dev/null)
-    pubkeyPrefix=$(echo $pubkey | cut -c1,2)
-    if [[ "$pubkeyPrefix" == "02" || "$pubkeyPrefix" == "03" ]]; then
-      echo $pubkey
-      break
-    fi
-    sleep 1
-  done
-}
-
-wait-for-eclair-channel() {
-  while true; do
-    state=$(docker exec lnbits-legend-eclair-1 curl http://localhost:8080/channels -X POST -s -u :lnbits | jq -r ".[0].state")
-    pending=$(docker exec lnbits-legend-eclair-1 curl -s http://localhost:8080/channels -X POST -u :lnbits| jq '. | length')
-    echo "eclair-1 pendingchannels: $pending, current state: $state"
-    if [[ "$state" == "NORMAL" ]]; then
-      break
-    fi
-    sleep 1
-  done
-}
-
 
 # args(i)
 fund_clightning_node() {
@@ -61,7 +36,7 @@ fund_lnd_node() {
 # args(i, j)
 connect_clightning_node() {
   pubkey=$(lightning-cli-sim $2 getinfo | jq -r '.id')
-  lightning-cli-sim $1 connect $pubkey@lnbits-legend-clightning-$2-1:9735 | jq -r '.id'
+  lightning-cli-sim $1 connect $pubkey@cashu-clightning-$2-1:9735 | jq -r '.id'
 }
 
 lnbits-regtest-start(){
@@ -94,7 +69,7 @@ lnbits-regtest-start-log(){
 lnbits-regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db ./data/eclair/regtest
+  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db
   # recreate lightning node data folders preventing permission errors
   mkdir ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3
 }
@@ -149,80 +124,64 @@ lnbits-lightning-init(){
   balance_size_msat=12000000000 # 0.12 btc
 
   # lnd-1 -> lnd-2
-  lncli-sim 1 connect $(lncli-sim 2 getinfo | jq -r '.identity_pubkey')@lnbits-legend-lnd-2-1 > /dev/null
+  lncli-sim 1 connect $(lncli-sim 2 getinfo | jq -r '.identity_pubkey')@cashu-lnd-2-1 > /dev/null
   echo "open channel from lnd-1 to lnd-2"
   lncli-sim 1 openchannel $(lncli-sim 2 getinfo | jq -r '.identity_pubkey') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
   # lnd-1 -> lnd-3
-  lncli-sim 1 connect $(lncli-sim 3 getinfo | jq -r '.identity_pubkey')@lnbits-legend-lnd-3-1 > /dev/null
+  lncli-sim 1 connect $(lncli-sim 3 getinfo | jq -r '.identity_pubkey')@cashu-lnd-3-1 > /dev/null
   echo "open channel from lnd-1 to lnd-3"
   lncli-sim 1 openchannel $(lncli-sim 3 getinfo | jq -r '.identity_pubkey') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
   # lnd-1 -> cln-1
-  lncli-sim 1 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@lnbits-legend-clightning-1-1 > /dev/null
+  lncli-sim 1 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@cashu-clightning-1-1 > /dev/null
   echo "open channel from lnd-1 to cln-1"
   lncli-sim 1 openchannel $(lightning-cli-sim 1 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
   # lnd-1 -> cln-2
-  lncli-sim 1 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@lnbits-legend-clightning-2-1 > /dev/null
+  lncli-sim 1 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@cashu-clightning-2-1 > /dev/null
   echo "open channel from lnd-1 to cln-2"
   lncli-sim 1 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
   # lnd-1 -> cln-3
-  lncli-sim 1 connect $(lightning-cli-sim 3 getinfo | jq -r '.id')@lnbits-legend-clightning-3-1 > /dev/null
+  lncli-sim 1 connect $(lightning-cli-sim 3 getinfo | jq -r '.id')@cashu-clightning-3-1 > /dev/null
   echo "open channel from lnd-1 to cln-3"
   lncli-sim 1 openchannel $(lightning-cli-sim 3 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 1
 
   # lnd-2 -> cln-2
-  lncli-sim 2 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@lnbits-legend-clightning-2-1 > /dev/null
+  lncli-sim 2 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@cashu-clightning-2-1 > /dev/null
   echo "open channel from lnd-2 to cln-2"
   lncli-sim 2 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 2
 
   # lnd-3 -> cln-3
-  lncli-sim 3 connect $(lightning-cli-sim 3 getinfo | jq -r '.id')@lnbits-legend-clightning-3-1 > /dev/null
+  lncli-sim 3 connect $(lightning-cli-sim 3 getinfo | jq -r '.id')@cashu-clightning-3-1 > /dev/null
   echo "open channel from lnd-3 to cln-1"
   lncli-sim 3 openchannel $(lightning-cli-sim 3 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 3
 
   # lnd-3 -> cln-1
-  lncli-sim 3 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@lnbits-legend-clightning-1-1 > /dev/null
+  lncli-sim 3 connect $(lightning-cli-sim 1 getinfo | jq -r '.id')@cashu-clightning-1-1 > /dev/null
   echo "open channel from lnd-3 to cln-1"
   lncli-sim 3 openchannel $(lightning-cli-sim 1 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 3
 
-  # lnd-1 -> eclair-1
-  lncli-sim 1 connect $(get-eclair-pubkey)@lnbits-legend-eclair-1 > /dev/null
-  echo "open channel from lnd-2 to eclair-1"
-  lncli-sim 1 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
-  bitcoin-cli-sim -generate $channel_confirms > /dev/null
-  wait-for-lnd-channel 1
-
-  # lnd-2 -> eclair-1
-  lncli-sim 2 connect $(get-eclair-pubkey)@lnbits-legend-eclair-1 > /dev/null
-  echo "open channel from lnd-2 to eclair-1"
-  lncli-sim 2 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
-  bitcoin-cli-sim -generate $channel_confirms > /dev/null
-  wait-for-lnd-channel 2
-
   wait-for-clightning-channel 1
   wait-for-clightning-channel 2
   wait-for-clightning-channel 3
-
-  wait-for-eclair-channel
 
   lnbits-lightning-sync
 
