@@ -8,10 +8,46 @@
 * cln-2: used for clightning-REST
 * eclair-1: for locally testing your current lnbits
 
-# requirements
-* docker compose v2: https://docs.docker.com/compose/install/compose-plugin/
-* jq
-* curl
+# Installing regtest 
+get the regtest enviroment ready
+```console
+# Install docker https://docs.docker.com/engine/install/
+# Make sure your user has permission to use docker `sudo usermod -aG docker ${USER}` then reboot
+# Stop/start docker `sudo systemctl stop docker` `sudo systemctl start docker`
+sudo apt install jq
+git clone https://github.com/lnbits/lnbits.git
+cd lnbits
+docker build -t lnbitsdocker/lnbits .
+mkdir docker
+git clone https://github.com/lnbits/legend-regtest-enviroment.git docker
+cd docker
+chmod +x ./tests
+./tests # start the regtest and also run tests
+sudo chown -R $USER ./data # Give the data file permissions for user
+```
+
+# Running LNbits on regtest
+add this ENV variables to your `.env` file
+```console
+DEBUG=true
+
+# LND
+LNBITS_BACKEND_WALLET_CLASS="LndRestWallet"
+LND_REST_ENDPOINT=https://127.0.0.1:8081/
+LND_REST_CERT=/home/user/repos/lnbits-legend/docker/data/lnd-1/tls.cert
+LND_REST_MACAROON=/home/user/repos/lnbits-legend/docker/data/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
+
+# CLN
+LNBITS_BACKEND_WALLET_CLASS="CoreLightningWallet"
+CORELIGHTNING_RPC=./docker/data/clightning-1/regtest/lightning-rpc 
+
+
+# Run LNbits
+poetry run lnbits
+
+# Run LNbits with hot reload
+make dev
+```
 
 # testing
 ```console
@@ -21,33 +57,9 @@
   ./tests && echo "PASSED" || echo "FAILED" > /dev/null
 ```
 
-# lnbits development
-add this ENV variables to your `.env` file
-```console
-DEBUG=true
-LNBITS_BACKEND_WALLET_CLASS="LndRestWallet"
-LND_REST_ENDPOINT=https://127.0.0.1:8081/
-LND_REST_CERT=/home/user/repos/lnbits-legend/docker/data/lnd-1/tls.cert
-LND_REST_MACAROON=/home/user/repos/lnbits-legend/docker/data/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
-poetry run uvicorn --host 0.0.0.0 --port 5000 --reload
-```
-
-# usage
-get the regtest enviroment ready
-```console
-git clone git@github.com:lnbits/lnbits-legend.git ~/repos/lnbits-legend
-cd ~/repos/lnbits-legend
-docker build -t lnbitsdocker/lnbits-legend .
-mkdir ~/repos/lnbits-legend/docker
-git clone git@github.com:lnbits/legend-regtest-enviroment.git ~/repos/lnbits-legend/docker
-cd ~/repos/lnbits-legend/docker
-chmod +x ./tests
-./tests # start the regtest and also run tests
-```
-
 usage of the `bitcoin-cli-sim`, `lightning-cli-sim` and `lncli-sim` aliases
 ```console
-cd ~/repos/lnbits-legend/docker
+cd ~/lnbits/docker
 source docker-scripts.sh
 # use bitcoin core, mine a block
 bitcoin-cli-sim -generate 1
