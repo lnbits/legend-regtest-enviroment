@@ -12,8 +12,8 @@
 get the regtest enviroment ready
 ```console
 # Install docker https://docs.docker.com/engine/install/
-# Make sure your user has permission to use docker 'sudo usermod -aG docker ${USER}' then reboot
-# Stop/start docker 'sudo systemctl stop docker' 'sudo systemctl start docker'
+# Make sure your user has permission to use docker "sudo usermod -aG docker ${USER}" then reboot
+# Stop/start docker "sudo systemctl stop docker" "sudo systemctl start docker"
 sudo apt install jq
 git clone https://github.com/lnbits/lnbits.git
 cd lnbits
