@@ -52,10 +52,10 @@ make dev
 
 # testing
 ```sh
-  chmod +x ./tests
-  ./tests
-  # short answer :)
-  ./tests && echo "PASSED" || echo "FAILED" > /dev/null
+chmod +x ./tests
+./tests
+# short answer :)
+./tests && echo "PASSED" || echo "FAILED" > /dev/null
 ```
 
 usage of the `bitcoin-cli-sim`, `lightning-cli-sim` and `lncli-sim` aliases
