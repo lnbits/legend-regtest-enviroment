@@ -5,6 +5,7 @@ services:
       - lnd-2
       - elementsd
       - bitcoind
+      - anvil
     restart: always
     image: boltz/boltz:latest
     ports:
