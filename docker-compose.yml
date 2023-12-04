@@ -165,8 +165,8 @@ services:
     command:
       - --electrum-rpc-addr
       - electrs:19001
-      - --http-addr
-      - electrs:19002
+      - --http-socket-file
+      - /data/.electrs/esplora-regtest
       - --daemon-rpc-addr
       - bitcoind:18443
       - --daemon-dir
@@ -182,6 +182,7 @@ services:
       - 19001:19001
     volumes:
       - ./data/elements:/home/elements/.elements
+      - ./data/electrs:/data/.electrs
 
   electrs-liquid:
     hostname: electrs-liquid
@@ -194,8 +195,8 @@ services:
     command:
       - --electrum-rpc-addr
       - electrs-liquid:19002
-      - --http-addr
-      - electrs-liquid:19003
+      - --http-socket-file
+      - /data/.electrs-liquid/esplora-liquid-regtest
       - --daemon-rpc-addr
       - elementsd:18884
       - --daemon-dir
@@ -213,6 +214,7 @@ services:
       - 19003:19003
     volumes:
       - ./data/elements:/home/elements/.elements
+      - ./data/electrs-liquid:/data/.electrs-liquid
 
   mempool-api:
     hostname: mempool-api
@@ -225,7 +227,7 @@ services:
       REDIS_ENABLED: false
       BACKEND_HTTP_PORT: 8999
       MEMPOOL_BACKEND: esplora
-      ESPLORA_REST_API_URL: http://electrs:19004
+      EXPLORA_UNIX_SOCKET: /data/.electrs/esplora-regtest
       CORE_RPC_HOST: bitcoind
       CORE_RPC_PORT: 18443
       CORE_RPC_USERNAME: regtest
@@ -239,6 +241,8 @@ services:
       - 8999
     ports:
       - 8999:8999
+    volumes:
+        - ./data/electrs:/data/.electrs
 
   mempool-db:
     hostname: mempool-db
@@ -276,11 +280,10 @@ services:
       - electrs-liquid
     image: mempool/backend:latest
     environment:
-      REDIS_ENABLED: false
       BACKEND_HTTP_PORT: 8998
       MEMPOOL_NETWORK: liquid
       MEMPOOL_BACKEND: esplora
-      ESPLORA_REST_API_URL: http://electrs-liquid:19003
+      ESPLORA_UNIX_SOCKET_PATH: /data/.electrs-liquid/esplora-liquid-regtest
       CORE_RPC_HOST: elementsd
       CORE_RPC_PORT: 18884
       CORE_RPC_USERNAME: regtest
@@ -294,6 +297,8 @@ services:
       - 8998
     ports:
       - 8998:8998
+    volumes:
+      - ./data/electrs-liquid:/data/.electrs-liquid
 
   mempool-db-liquid:
     hostname: mempool-db-liquid
