@@ -157,6 +157,32 @@ services:
     ports:
       - 8090:8090
 
+  electrs:
+    hostname: electrs
+    restart: always
+    image: blockstream/esplora:electrs-latest
+    entrypoint: ./electrs_bitcoin/bin/electrs
+    command:
+      - --electrum-rpc-addr
+      - electrs:19001
+      - --http-addr
+      - electrs:19002
+      - --daemon-rpc-addr
+      - bitcoind:18443
+      - --daemon-dir
+      - /home/elements/.elements
+      - --cookie
+      - regtest:regtest
+      - --network
+      - regtest
+      - --jsonrpc-import
+      - -vvvv
+    ports:
+      - 19000:19000
+      - 19001:19001
+    volumes:
+      - ./data/elements:/home/elements/.elements
+
   electrs-liquid:
     hostname: electrs-liquid
     restart: always
