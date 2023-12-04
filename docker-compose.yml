@@ -190,7 +190,24 @@ services:
     environment:
       ELECTRS_DAEMON_RPC_ADDR: bitcoind:18443
       ELECTRS_DAEMON_P2P_ADDR: bitcoind:18444
-    entrypoint: "./electrs_liquid/bin/electrs --electrum-rpc-addr electrs-liquid:19002  --http-addr electrs-liquid:19003 --daemon-rpc-addr elementsd:18884 --daemon-dir /home/elements/.elements --cookie regtest:regtest --network liquidregtest --parent-network regtest --jsonrpc-import -vvvv"
+    entrypoint: ./electrs_liquid/bin/electrs
+    command:
+      - --electrum-rpc-addr
+      - electrs-liquid:19002
+      - --http-addr
+      - electrs-liquid:19003
+      - --daemon-rpc-addr
+      - elementsd:18884
+      - --daemon-dir
+      - /home/elements/.elements
+      - --cookie
+      - regtest:regtest
+      - --network
+      - liquidregtest
+      - --parent-network
+      - regtest
+      - --jsonrpc-import
+      - -vvvv
     ports:
       - 19002:19002
       - 19003:19003
