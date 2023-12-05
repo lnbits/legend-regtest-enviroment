@@ -9,6 +9,22 @@ elements-cli-sim() {
   docker exec regtest-elementsd-1 elements-cli "$@"
 }
 
+mempool-address() {
+  curl localhost:8090/api/address/"$1" | jq .
+}
+
+mempool-liquid-address() {
+  curl localhost:8091/api/address/"$1" | jq .
+}
+
+mempool-tx() {
+  curl localhost:8090/api/tx/"$1" | jq .
+}
+
+mempool-liquid-tx() {
+  curl localhost:8091/api/tx/"$1" | jq .
+}
+
 # args(i, cmd)
 lightning-cli-sim() {
   i=$1
