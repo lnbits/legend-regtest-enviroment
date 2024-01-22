@@ -144,7 +144,7 @@ services:
   electrs:
     hostname: electrs
     restart: always
-    image: blockstream/esplora:electrs-latest
+    image: blockstream/esplora:electrs-cd9f90c115751eb9d2bca9a4da89d10d048ae931
     entrypoint: ./electrs_bitcoin/bin/electrs
     command:
       - --electrum-rpc-addr
@@ -170,7 +170,7 @@ services:
   electrs-liquid:
     hostname: electrs-liquid
     restart: always
-    image: blockstream/esplora:electrs-latest
+    image: blockstream/esplora:electrs-cd9f90c115751eb9d2bca9a4da89d10d048ae931
     environment:
       ELECTRS_DAEMON_RPC_ADDR: bitcoind:18443
       ELECTRS_DAEMON_P2P_ADDR: bitcoind:18444
@@ -224,7 +224,7 @@ services:
     ports:
       - 8999:8999
     volumes:
-        - ./data/electrs:/data/.electrs
+      - ./data/electrs:/data/.electrs
 
   mempool-db:
     hostname: mempool-db
