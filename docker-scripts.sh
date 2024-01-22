@@ -10,19 +10,19 @@ elements-cli-sim() {
 }
 
 mempool-address() {
-  curl localhost:8090/api/address/"$1" | jq .
+  curl localhost:8190/api/address/"$1" | jq .
 }
 
 mempool-liquid-address() {
-  curl localhost:8091/api/address/"$1" | jq .
+  curl localhost:8191/api/address/"$1" | jq .
 }
 
 mempool-tx() {
-  curl localhost:8090/api/tx/"$1" | jq .
+  curl localhost:8190/api/tx/"$1" | jq .
 }
 
 mempool-liquid-tx() {
-  curl localhost:8091/api/tx/"$1" | jq .
+  curl localhost:8191/api/tx/"$1" | jq .
 }
 
 # args(i, cmd)

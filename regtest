@@ -33,8 +33,6 @@ printf "\033[;1;36mregtest started! starting tests...\033[;0m\n"
 echo "=================================="
 echo ""
 
-docker logs regtest-elementsd-1
-docker logs regtest-boltz-1
 
 for i in 1 2; do
   run "lnd-$i .synced_to_chain" "true" $(lncli-sim $i getinfo | jq -r ".synced_to_chain")
@@ -55,6 +53,8 @@ done
 
 run "mempool service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:8090/")
 run "mempool liquid service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:8091/")
+
+docker logs regtest-mempool-liquid-api-1
 
 # boltz failing longer with rsk
 sleep 10
