@@ -9,20 +9,20 @@ elements-cli-sim() {
   docker exec regtest-elementsd-1 elements-cli "$@"
 }
 
-mempool-address() {
-  curl localhost:8190/api/address/"$1" | jq .
+bitcoin-address() {
+  curl localhost:3002/address/"$1" | jq .
 }
 
-mempool-liquid-address() {
-  curl localhost:8191/api/address/"$1" | jq .
+liquid-address() {
+  curl localhost:3003/address/"$1" | jq .
 }
 
-mempool-tx() {
-  curl localhost:8190/api/tx/"$1" | jq .
+bitcoin-tx() {
+  curl localhost:3002/tx/"$1" | jq .
 }
 
-mempool-liquid-tx() {
-  curl localhost:8191/api/tx/"$1" | jq .
+liquid-tx() {
+  curl localhost:3003/tx/"$1" | jq .
 }
 
 # args(i, cmd)

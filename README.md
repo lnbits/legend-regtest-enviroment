@@ -47,8 +47,6 @@ lncli-sim 2 listpeers
 ```
 
 # urls
-* mempool: http://localhost:8090/
-* mempool liquid: http://localhost:8091/
 * boltz api: http://localhost:9001/
 * lnd-1 rest: http://localhost:8081/
 

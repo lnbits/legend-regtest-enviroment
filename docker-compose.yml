@@ -149,8 +149,8 @@ services:
     command:
       - --electrum-rpc-addr
       - electrs:19001
-      - --http-socket-file
-      - /data/.electrs/esplora-regtest
+      - --http-addr
+      - electrs:3002
       - --daemon-rpc-addr
       - bitcoind:18443
       - --daemon-dir
@@ -163,23 +163,20 @@ services:
       - -vvvv
     ports:
       - 19001:19001
+      - 3002:3002
     volumes:
       - ./data/elements:/home/elements/.elements
-      - ./data/electrs:/data/.electrs
 
   electrs-liquid:
     hostname: electrs-liquid
     restart: always
     image: blockstream/esplora:electrs-cd9f90c115751eb9d2bca9a4da89d10d048ae931
-    environment:
-      ELECTRS_DAEMON_RPC_ADDR: bitcoind:18443
-      ELECTRS_DAEMON_P2P_ADDR: bitcoind:18444
     entrypoint: ./electrs_liquid/bin/electrs
     command:
       - --electrum-rpc-addr
       - electrs-liquid:19002
-      - --http-socket-file
-      - /data/.electrs-liquid/esplora-liquid-regtest
+      - --http-addr
+      - electrs-liquid:3003
       - --daemon-rpc-addr
       - elementsd:18884
       - --daemon-dir
@@ -194,131 +191,7 @@ services:
       - -vvvv
     ports:
       - 19002:19002
+      - 3003:3003
     volumes:
       - ./data/elements:/home/elements/.elements
-      - ./data/electrs-liquid:/data/.electrs-liquid
 
-  mempool-api:
-    hostname: mempool-api
-    restart: always
-    depends_on:
-      - bitcoind
-      - mempool-db
-    image: mempool/backend:latest
-    environment:
-      REDIS_ENABLED: false
-      BACKEND_HTTP_PORT: 8999
-      MEMPOOL_BACKEND: esplora
-      ESPLORA_UNIX_SOCKET_PATH: /data/.electrs/esplora-regtest
-      CORE_RPC_HOST: bitcoind
-      CORE_RPC_PORT: 18443
-      CORE_RPC_USERNAME: regtest
-      CORE_RPC_PASSWORD: regtest
-      DATABASE_ENABLED: true
-      DATABASE_HOST: mempool-db
-      DATABASE_DATABASE: mempool
-      DATABASE_USERNAME: mempool
-      DATABASE_PASSWORD: mempool
-    expose:
-      - 8999
-    ports:
-      - 8999:8999
-    volumes:
-      - ./data/electrs:/data/.electrs
-
-  mempool-db:
-    hostname: mempool-db
-    environment:
-      MYSQL_DATABASE: mempool
-      MYSQL_USER: mempool
-      MYSQL_PASSWORD: mempool
-      MYSQL_ROOT_PASSWORD: admin
-    image: mariadb:10.5.8
-
-  mempool-api-liquid:
-    hostname: mempool-api-liquid
-    restart: always
-    depends_on:
-      - elementsd
-      - mempool-db-liquid
-      - electrs-liquid
-    image: mempool/backend:latest
-    environment:
-      BACKEND_HTTP_PORT: 8998
-      MEMPOOL_NETWORK: liquid
-      MEMPOOL_BACKEND: esplora
-      ESPLORA_UNIX_SOCKET_PATH: /data/.electrs-liquid/esplora-liquid-regtest
-      CORE_RPC_HOST: elementsd
-      CORE_RPC_PORT: 18884
-      CORE_RPC_USERNAME: regtest
-      CORE_RPC_PASSWORD: regtest
-      DATABASE_ENABLED: true
-      DATABASE_HOST: mempool-db-liquid
-      DATABASE_DATABASE: mempool
-      DATABASE_USERNAME: mempool
-      DATABASE_PASSWORD: mempool
-    expose:
-      - 8998
-    ports:
-      - 8998:8998
-    volumes:
-      - ./data/electrs-liquid:/data/.electrs-liquid
-
-  mempool-db-liquid:
-    hostname: mempool-db-liquid
-    environment:
-      MYSQL_DATABASE: mempool
-      MYSQL_USER: mempool
-      MYSQL_PASSWORD: mempool
-      MYSQL_ROOT_PASSWORD: admin
-    image: mariadb:10.5.8
-
-  mempool-api-proxy:
-    hostname: mempool-api-proxy
-    restart: always
-    depends_on:
-      - mempool-api
-      - mempool-api-liquid
-    image: nginx:latest
-    volumes:
-      - ./data/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - ./data/electrs:/data/.electrs
-      - ./data/electrs-liquid:/data/.electrs-liquid
-    ports:
-      - 8190:8190
-      - 8191:8191
-
-  mempool-web:
-    hostname: mempool-web
-    restart: always
-    depends_on:
-      - mempool-api
-    environment:
-      FRONTEND_HTTP_PORT: 8090
-      BACKEND_MAINNET_HTTP_HOST: mempool-api-proxy
-      BACKEND_MAINNET_HTTP_PORT: 8190
-      LIQUID_ENABLED: true
-      LIQUID_WEBSITE_URL: http://localhost:8091
-      NGINX_HOST: mempool-api
-      NGINX_PORT: 8090
-    image: mempool/frontend:latest
-    ports:
-      - 8090:8090
-
-  mempool-web-liquid:
-    restart: always
-    depends_on:
-      - mempool-api-liquid
-    environment:
-      BASE_MODULE: liquid
-      LIQUID_ENABLED: true
-      BISQ_ENABLED: false
-      MEMPOOL_WEBSITE_URL: http://localhost:8090
-      FRONTEND_HTTP_PORT: 8091
-      BACKEND_MAINNET_HTTP_HOST: mempool-api-proxy
-      BACKEND_MAINNET_HTTP_PORT: 8191
-      NGINX_HOST: mempool-api-liquid
-      NGINX_PORT: 8091
-    image: mempool/frontend:latest
-    ports:
-      - 8091:8091

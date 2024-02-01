@@ -51,11 +51,6 @@ for i in 1; do
   run "cln-$i channel[0].our_amount_msat" $((balance_size * 1000)) $(lightning-cli-sim $i listfunds | jq -r ".channels[0].our_amount_msat")
 done
 
-run "mempool service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:8090/")
-run "mempool liquid service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:8091/")
-
-docker logs regtest-mempool-api-liquid-1
-
 # boltz failing longer with rsk
 sleep 10
 run "boltz service status" "200" $(curl -s -o /dev/null --head -w "%{http_code}" "http://localhost:9001/version")
