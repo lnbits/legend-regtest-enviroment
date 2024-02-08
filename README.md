@@ -8,7 +8,7 @@
 * cln-2: used for clightning-REST
 * eclair-1: for locally testing your current lnbits
 
-# Installing regtest 
+# Installing regtest
 get the regtest enviroment ready
 ```sh
 # Install docker https://docs.docker.com/engine/install/
@@ -18,7 +18,7 @@ get the regtest enviroment ready
 sudo apt install jq
 git clone https://github.com/lnbits/lnbits.git
 cd lnbits
-docker build -t lnbitsdocker/lnbits .
+docker build -t lnbits/lnbits .
 mkdir docker
 git clone https://github.com/lnbits/legend-regtest-enviroment.git docker
 cd docker
@@ -35,12 +35,12 @@ DEBUG=true
 # LND
 LNBITS_BACKEND_WALLET_CLASS="LndRestWallet"
 LND_REST_ENDPOINT=https://127.0.0.1:8081/
-LND_REST_CERT=/home/user/repos/lnbits-legend/docker/data/lnd-1/tls.cert
-LND_REST_MACAROON=/home/user/repos/lnbits-legend/docker/data/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
+LND_REST_CERT=/home/user/repos/lnbits/docker/data/lnd-1/tls.cert
+LND_REST_MACAROON=/home/user/repos/lnbits/docker/data/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
 
 # CLN
 LNBITS_BACKEND_WALLET_CLASS="CoreLightningWallet"
-CORELIGHTNING_RPC=./docker/data/clightning-1/regtest/lightning-rpc 
+CORELIGHTNING_RPC=./docker/data/clightning-1/regtest/lightning-rpc
 
 
 # Run LNbits
@@ -83,8 +83,8 @@ lncli-sim 2 listpeers
 
 # debugging docker logs
 ```sh
-docker logs lnbits-legend-lnbits-1 -f
-docker logs lnbits-legend-boltz-1 -f
-docker logs lnbits-legend-clightning-1-1 -f
-docker logs lnbits-legend-lnd-2-1 -f
+docker logs lnbits-lnbits-1 -f
+docker logs lnbits-boltz-1 -f
+docker logs lnbits-clightning-1-1 -f
+docker logs lnbits-lnd-2-1 -f
 ```

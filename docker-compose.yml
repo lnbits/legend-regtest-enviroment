@@ -4,7 +4,7 @@ services:
     hostname: lnbits
     depends_on:
       - lnd-3
-    image: lnbitsdocker/lnbits-legend
+    image: lnbits/lnbits
     restart: on-failure
     user: "0:0"
     entrypoint: "sh -c 'sleep 30; poetry run lnbits'"
