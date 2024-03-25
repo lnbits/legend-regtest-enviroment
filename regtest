@@ -20,8 +20,8 @@ run(){
 }
 
 failed="false"
-blockheight=171
-channel_count=2
+blockheight=183
+channel_count=3
 utxos=5
 channel_size=24000000 # 0.024 btc
 balance_size=12000000 # 0.012 btc
@@ -42,10 +42,10 @@ for i in 1 2; do
   run "lnd-$i .channels[0].capacity" $channel_size $(lncli-sim $i listchannels | jq -r ".channels[0].capacity")
   run "lnd-$i .channels[0].push_amount_sat" $balance_size $(lncli-sim $i listchannels | jq -r ".channels[0].push_amount_sat")
 done
-for i in 1; do
+for i in 1 2; do
   # run "cln-$i blockheight" $blockheight $(lightning-cli-sim $i getinfo | jq -r ".blockheight")
   run "cln-$i utxo count" $utxos $(lightning-cli-sim $i listfunds | jq -r ".outputs | length")
-  run "cln-$i openchannels" $channel_count $(lightning-cli-sim $i getinfo | jq -r ".num_active_channels")
+  run "cln-$i openchannels" 2 $(lightning-cli-sim $i getinfo | jq -r ".num_active_channels")
   run "cln-$i channel[0].state" "CHANNELD_NORMAL" $(lightning-cli-sim $i listfunds | jq -r ".channels[0].state")
   run "cln-$i channel[0].amount_msat" $((channel_size * 1000)) $(lightning-cli-sim $i listfunds | jq -r ".channels[0].amount_msat")
   run "cln-$i channel[0].our_amount_msat" $((balance_size * 1000)) $(lightning-cli-sim $i listfunds | jq -r ".channels[0].our_amount_msat")

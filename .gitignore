@@ -1,7 +1,14 @@
-data
+data/*
 !data/elements
+data/elements/*
+!data/elements/elements.conf
+!data/elements/liquid.cookie
 
 !data/boltz
 data/boltz/*
 !data/boltz/boltz.conf
 !data/boltz/seed.dat
+
+!data/boltz-client
+data/boltz-client/*
+!data/boltz-client/boltz.toml

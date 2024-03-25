@@ -16,6 +16,21 @@ services:
       - ./data/boltz/:/root/.boltz/
       - ./data/elements/:/root/.elements/
 
+  boltz-client:
+    hostname: boltz-client
+    depends_on:
+      - clightning-2
+      - boltz
+    restart: always
+    image: boltz/boltz-client:latest
+    ports:
+      - 9002:9002
+      - 9003:9003
+    volumes:
+      - ./data/clightning-2:/root/.lightning/
+      - ./data/boltz-client/:/root/.boltz/
+      - ./data/elements/:/root/.elements/
+
   anvil:
     hostname: anvil
     image: ghcr.io/foundry-rs/foundry:latest
@@ -83,6 +98,29 @@ services:
       - 9736:9736
     volumes:
       - ./data/clightning-1:/root/.lightning/
+
+  clightning-2:
+    hostname: clightning-2
+    restart: always
+    depends_on:
+      - bitcoind
+    image: boltz/c-lightning:23.08.1
+    command:
+      - --large-channels
+      - --network
+      - regtest
+      - --bind-addr=0.0.0.0:9735
+      - --bitcoin-rpcconnect=bitcoind
+      - --bitcoin-rpcport=18443
+      - --bitcoin-rpcuser=regtest
+      - --bitcoin-rpcpassword=regtest
+      - --grpc-port=9736
+      - --dev-bitcoind-poll=3
+    expose:
+      - 9735
+      - 9736
+    volumes:
+      - ./data/clightning-2:/root/.lightning/
 
   lnd-1:
     hostname: lnd-1

@@ -9,6 +9,10 @@ elements-cli-sim() {
   docker exec regtest-elementsd-1 elements-cli "$@"
 }
 
+boltzcli-sim() {
+  docker exec -it regtest-boltz-client-1 boltzcli "$@"
+}
+
 bitcoin-address() {
   curl localhost:3002/address/"$1" | jq .
 }
@@ -92,9 +96,9 @@ regtest-start-log(){
 regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/lnd-1  ./data/lnd-2 ./data/boltz/boltz.db ./data/elements/liquidregtest ./data/bitcoin/regtest
+  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/lnd-1  ./data/lnd-2 ./data/boltz/boltz.db ./data/elements/liquidregtest ./data/bitcoin/regtest
   # recreate lightning node data folders preventing permission errors
-  mkdir ./data/clightning-1 ./data/lnd-1 ./data/lnd-2
+  mkdir ./data/clightning-1 ./data/clightning-2 ./data/lnd-1 ./data/lnd-2
 }
 
 regtest-restart(){
@@ -116,15 +120,22 @@ elements-init(){
   elements-cli-sim rescanblockchain 0 > /dev/null
 }
 
+boltz-client-init(){
+  boltzcli-sim wallet create lnbits LBTC
+  boltzcli-sim formatmacaroon
+}
+
 regtest-init(){
   bitcoin-init
   elements-init
   lightning-sync
   lightning-init
+  boltz-client-init
 }
 
 lightning-sync(){
   wait-for-clightning-sync 1
+  wait-for-clightning-sync 2
   wait-for-lnd-sync 1
   wait-for-lnd-sync 2
 }
@@ -133,6 +144,7 @@ lightning-init(){
   # create 10 UTXOs for each node
   for i in 0 1 2 3 4; do
     fund_clightning_node 1
+    fund_clightning_node 2
     fund_lnd_node 1
     fund_lnd_node 2
   done
@@ -168,6 +180,22 @@ lightning-init(){
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 2
   wait-for-clightning-channel 1
+
+  # lnd-1 -> cln-2
+  lncli-sim 1 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@regtest-clightning-2-1 > /dev/null
+  echo "open channel from lnd-1 to cln-2"
+  lncli-sim 1 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate $channel_confirms > /dev/null
+  wait-for-lnd-channel 1
+  wait-for-clightning-channel 2
+
+  # lnd-2 -> cln-2
+  lncli-sim 2 connect $(lightning-cli-sim 2 getinfo | jq -r '.id')@regtest-clightning-2-1 > /dev/null
+  echo "open channel from lnd-2 to cln-2"
+  lncli-sim 2 openchannel $(lightning-cli-sim 2 getinfo | jq -r '.id') $channel_size $balance_size > /dev/null
+  bitcoin-cli-sim -generate $channel_confirms > /dev/null
+  wait-for-lnd-channel 2
+  wait-for-clightning-channel 2
 
   lightning-sync
 
