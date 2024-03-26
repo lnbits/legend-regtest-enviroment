@@ -25,7 +25,7 @@ services:
 
   bitcoind:
     hostname: bitcoind
-    image: boltz/bitcoin-core:25.0
+    image: boltz/bitcoin-core:26.0
     command: "-regtest -fallbackfee=0.00000253 -zmqpubrawtx=tcp://0.0.0.0:29000 -zmqpubrawblock=tcp://0.0.0.0:29001 -zmqpubhashblock=tcp://0.0.0.0:29002 -txindex -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=lnbits -rpcpassword=lnbits -addresstype=bech32 -changetype=bech32 -dbcache=2048 -rpcworkqueue=256"
     expose:
       - 29000
@@ -38,7 +38,7 @@ services:
     hostname: clightning-1
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:23.08.1
+    image: boltz/c-lightning:24.02.1
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
@@ -49,7 +49,7 @@ services:
     hostname: clightning-2
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:22.11.1
+    image: boltz/c-lightning:24.02.1
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
@@ -60,7 +60,7 @@ services:
     hostname: clightning-2-rest
     depends_on:
       - clightning-2
-    image: saubyk/c-lightning-rest:0.10.6
+    image: saubyk/c-lightning-rest:0.10.7
     entrypoint: "sh -c 'sleep 35 && /sbin/tini -g -- ./docker-entrypoint.sh'"
     ports:
       - 3001:3001
@@ -74,7 +74,7 @@ services:
     hostname: clightning-3
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:23.08.1
+    image: boltz/c-lightning:24.02.1
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
@@ -85,7 +85,7 @@ services:
     hostname: lnd-1
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.16.2-beta
+    image: boltz/lnd:0.17.4-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     expose:
@@ -99,7 +99,7 @@ services:
     hostname: lnd-2
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.16.2-beta
+    image: boltz/lnd:0.17.4-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     expose:
@@ -113,7 +113,7 @@ services:
     hostname: lnd-3
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.16.2-beta
+    image: boltz/lnd:0.17.4-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-3:9735 --rpclisten=lnd-3:10009 --restlisten=lnd-3:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
     ports:

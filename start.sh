@@ -71,3 +71,6 @@ else
   print_success "all tests passed! yay!"
   echo "=================================="
 fi
+
+# # LNbits create a wallet
+# docker exec cashu-lnbits-1 poetry run python tools/create_fake_admin.py
