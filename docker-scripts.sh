@@ -83,7 +83,6 @@ regtest-start(){
   docker compose up -d --remove-orphans
   sudo chown -R $USER ./data
   regtest-init
-  deploy-contracts
 }
 
 regtest-start-log(){
@@ -129,6 +128,7 @@ regtest-init(){
   bitcoin-init
   elements-init
   lightning-sync
+  deploy-contracts
   lightning-init
   boltz-client-init
 }
