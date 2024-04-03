@@ -73,4 +73,4 @@ else
 fi
 
 # # LNbits create a wallet
-# docker exec cashu-lnbits-1 poetry run python tools/create_fake_admin.py
+docker exec cashu-lnbits-1 poetry run python tools/create_fake_admin.py
