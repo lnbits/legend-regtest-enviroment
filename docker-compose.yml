@@ -33,7 +33,7 @@ services:
 
   anvil:
     hostname: anvil
-    image: ghcr.io/foundry-rs/foundry:latest
+    image: ghcr.io/foundry-rs/foundry:nightly-293fad73670b7b59ca901c7f2105bf7a29165a90
     command:
       - anvil --host 0.0.0.0
     ports:
@@ -232,4 +232,3 @@ services:
       - 3003:3003
     volumes:
       - ./data/elements:/home/elements/.elements
-
