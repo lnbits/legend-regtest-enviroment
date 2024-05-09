@@ -111,10 +111,16 @@ lnbits-bitcoin-init(){
   bitcoin-cli-sim -generate 150 > /dev/null
 }
 
+lnbits-init(){
+  echo "init_lnbits..."
+  docker exec lnbits-lnbits-1 poetry run python tools/create_fake_admin.py
+}
+
 lnbits-regtest-init(){
   lnbits-bitcoin-init
   lnbits-lightning-sync
   lnbits-lightning-init
+  lnbits-init
 }
 
 lnbits-lightning-sync(){
