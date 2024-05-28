@@ -92,6 +92,9 @@ services:
       - --bitcoin-rpcpassword=regtest
       - --grpc-port=9736
       - --dev-bitcoind-poll=3
+      - --dev-fast-gossip
+      - --experimental-offers
+      - --experimental-dual-fund
     expose:
       - 9735
     ports:
@@ -116,6 +119,9 @@ services:
       - --bitcoin-rpcpassword=regtest
       - --grpc-port=9736
       - --dev-bitcoind-poll=3
+      - --dev-fast-gossip
+      - --experimental-offers
+      - --experimental-dual-fund
     expose:
       - 9735
       - 9736
