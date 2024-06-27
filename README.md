@@ -1,66 +1,50 @@
 ![TESTS](https://github.com/lnbits/legend-regtest-enviroment/actions/workflows/ci.yml/badge.svg)
 
 # nodes
-* lnd-1: for locally testing your current lnbits
+* lnd-1: for testing your software
 * lnd-2: used for boltz backend
 * lnd-3: used for lnbits inside docker
-* cln-1: for locally testing your current lnbits
+* cln-1: for testing your software
 * cln-2: used for clightning-REST
 
 # Installing regtest 
-get the regtest enviroment ready
+get the regtest environment ready
 ```sh
 # Install docker https://docs.docker.com/engine/install/
 # Make sure your user has permission to use docker 'sudo usermod -aG docker ${USER}' then reboot
 # Stop/start docker 'sudo systemctl stop docker' 'sudo systemctl start docker'
 
-sudo apt install jq
-git clone https://github.com/lnbits/lnbits.git
-cd lnbits
-docker build -t lnbitsdocker/lnbits .
-mkdir docker
-git clone https://github.com/lnbits/legend-regtest-enviroment.git docker
-cd docker
-chmod +x ./tests
-./tests # start the regtest and also run tests
-sudo chown -R $USER ./data # Give the data file permissions for user
+git clone https://github.com/callebtc/cashu-regtest.git
+cd cashu-regtest
+./start.sh  # start the regtest and also run tests
 ```
 
-# Running LNbits on regtest
-add this ENV variables to your `.env` file
+# Running Nutshell on regtest
+add this ENV variables to your `.env` file (assuming that the `cashu-regtest` directory is in `../` from the `nutshell` directory)
 ```sh
-DEBUG=true
-
 # LND
-LNBITS_BACKEND_WALLET_CLASS="LndRestWallet"
-LND_REST_ENDPOINT=https://127.0.0.1:8081/
-LND_REST_CERT=/home/user/repos/cashu/docker/data/lnd-1/tls.cert
-LND_REST_MACAROON=/home/user/repos/cashu/docker/data/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
+MINT_BACKEND_BOLT11_SAT=LndRestWallet
+MINT_LND_REST_ENDPOINT=https://localhost:8081
+MINT_LND_REST_CERT="../cashu-regtest/data/lnd-3/tls.cert"
+MINT_LND_REST_MACAROON="../cashu-regtest/data/lnd-3/data/chain/bitcoin/regtest/admin.macaroon"
 
 # CLN
-LNBITS_BACKEND_WALLET_CLASS="CoreLightningWallet"
-CORELIGHTNING_RPC=./docker/data/clightning-1/regtest/lightning-rpc 
-
-
-# Run LNbits
-poetry run lnbits
-
-# Run LNbits with hot reload
-make dev
+MINT_BACKEND_BOLT11_SAT=CoreLightningRestWallet
+MINT_CORELIGHTNING_REST_URL=https://localhost:3001
+MINT_CORELIGHTNING_REST_MACAROON=../cashu-regtest-enviroment/data/clightning-2-rest/access.macaroon
+MINT_CORELIGHTNING_REST_CERT=../cashu-regtest-enviroment/data/clightning-2-rest/certificate.pem
 ```
 
-# testing
-```sh
-chmod +x ./tests
-./tests
-# short answer :)
-./tests && echo "PASSED" || echo "FAILED" > /dev/null
-```
+# Regtest nodes
 
-usage of the `bitcoin-cli-sim`, `lightning-cli-sim` and `lncli-sim` aliases
+You can interact with the software running in the container using the `bitcoin-cli-sim`, `lightning-cli-sim` and `lncli-sim` aliases. You can bind these aliases by sourcing the `docker-scripts.sh` file:
 ```sh
-cd ~/lnbits/docker
 source docker-scripts.sh
+
+# LND
+lncli-sim 1 addinvoice <amount> # create an invoice
+lncli-sim 1 payinvoice -f <invoice> # pay an invoice
+
 # use bitcoin core, mine a block
 bitcoin-cli-sim -generate 1
 
