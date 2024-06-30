@@ -1,30 +1,7 @@
 services:
-  lnbits:
-    hostname: lnbits
-    depends_on:
-      - lnd-3
-    image: lnbitsdocker/lnbits-legend
-    restart: on-failure
-    user: "0:0"
-    entrypoint: "sh -c 'sleep 30; poetry run lnbits'"
-    environment:
-      HOST: lnbits
-      PORT: 5001
-      DEBUG: true
-      LNBITS_BACKEND_WALLET_CLASS: "LndRestWallet"
-      LNBITS_DATA_FOLDER: "./data"
-      LND_REST_ENDPOINT: "https://lnd-3:8081/"
-      LND_REST_CERT: "./lnd/tls.cert"
-      LND_REST_MACAROON: "./lnd/data/chain/bitcoin/regtest/admin.macaroon"
-    ports:
-      - 5001:5001
-    volumes:
-      - lnbits-data:/app/data
-      - ./data/lnd-3:/app/lnd:uid=1000,gid=1000
-
   bitcoind:
     hostname: bitcoind
-    image: boltz/bitcoin-core:26.0
+    image: boltz/bitcoin-core:27.1
     command: "-regtest -fallbackfee=0.00000253 -zmqpubrawtx=tcp://0.0.0.0:29000 -zmqpubrawblock=tcp://0.0.0.0:29001 -zmqpubhashblock=tcp://0.0.0.0:29002 -txindex -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=cashu -rpcpassword=cashu -addresstype=bech32 -changetype=bech32 -dbcache=2048 -rpcworkqueue=256"
     expose:
       - 29000
@@ -37,8 +14,8 @@ services:
     hostname: clightning-1
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:24.02.1
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu' --clnrest-port=3010 --clnrest-host=0.0.0.0"
+    image: boltz/c-lightning:24.05
+    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu --clnrest-port=3010 --clnrest-host=0.0.0.0'"
     expose:
       - 9735
     volumes:
@@ -48,8 +25,8 @@ services:
     hostname: clightning-2
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:24.02.1
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu' --clnrest-port=3010 --clnrest-host=0.0.0.0"
+    image: boltz/c-lightning:24.05
+    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu --clnrest-port=3010 --clnrest-host=0.0.0.0'"
     ports:
       - 3010:3010
     expose:
@@ -76,8 +53,8 @@ services:
     hostname: clightning-3
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:24.02.1
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu'  --clnrest-port=3010 --clnrest-host=0.0.0.0"
+    image: boltz/c-lightning:24.05
+    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu  --clnrest-port=3010 --clnrest-host=0.0.0.0'"
     expose:
       - 9735
     volumes:
@@ -87,7 +64,7 @@ services:
     hostname: lnd-1
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.17.4-beta
+    image: boltz/lnd:0.18.1-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=cashu --bitcoind.rpcpass=cashu --noseedbackup --protocol.wumbo-channels'"
     expose:
@@ -101,7 +78,7 @@ services:
     hostname: lnd-2
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.17.4-beta
+    image: boltz/lnd:0.18.1-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=cashu --bitcoind.rpcpass=cashu --noseedbackup --protocol.wumbo-channels'"
     expose:
@@ -115,7 +92,7 @@ services:
     hostname: lnd-3
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.17.4-beta
+    image: boltz/lnd:0.18.1-beta
     restart: on-failure
     entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-3:9735 --rpclisten=lnd-3:10009 --restlisten=lnd-3:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=cashu --bitcoind.rpcpass=cashu --noseedbackup --protocol.wumbo-channels'"
     ports:
@@ -128,5 +105,27 @@ services:
     volumes:
       - ./data/lnd-3:/root/.lnd/
 
+  lnbits:
+    hostname: lnbits
+    depends_on:
+      - lnd-3
+    image: lnbitsdocker/lnbits-legend
+    restart: on-failure
+    user: "0:0"
+    entrypoint: "sh -c 'sleep 30; poetry run lnbits'"
+    environment:
+      HOST: lnbits
+      PORT: 5001
+      DEBUG: true
+      LNBITS_BACKEND_WALLET_CLASS: "LndRestWallet"
+      LNBITS_DATA_FOLDER: "./data"
+      LND_REST_ENDPOINT: "https://lnd-3:8081/"
+      LND_REST_CERT: "./lnd/tls.cert"
+      LND_REST_MACAROON: "./lnd/data/chain/bitcoin/regtest/admin.macaroon"
+    ports:
+      - 5001:5001
+    volumes:
+      - lnbits-data:/app/data
+      - ./data/lnd-3:/app/lnd:uid=1000,gid=1000
 volumes:
   lnbits-data:
