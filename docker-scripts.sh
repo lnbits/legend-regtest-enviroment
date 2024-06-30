@@ -2,7 +2,7 @@
 export COMPOSE_PROJECT_NAME=cashu
 
 bitcoin-cli-sim() {
-  docker exec cashu-bitcoind-1 bitcoin-cli -rpcuser=lnbits -rpcpassword=lnbits -regtest "$@"
+  docker exec cashu-bitcoind-1 bitcoin-cli -rpcuser=cashu -rpcpassword=cashu -regtest "$@"
 }
 
 # args(i, cmd)
@@ -37,6 +37,11 @@ fund_lnd_node() {
 connect_clightning_node() {
   pubkey=$(lightning-cli-sim $2 getinfo | jq -r '.id')
   lightning-cli-sim $1 connect $pubkey@cashu-clightning-$2-1:9735 | jq -r '.id'
+}
+
+# args(i)
+clightning_create_rune() {
+  lightning-cli-sim $1 createrune | jq -r '.rune' > ./data/clightning-$1/rune
 }
 
 cashu-regtest-start(){
@@ -79,7 +84,7 @@ cashu-regtest-restart(){
   cashu-regtest-start
 }
 
-lnbits-bitcoin-init(){
+cashu-bitcoin-init(){
   echo "init_bitcoin_wallet..."
   bitcoin-cli-sim createwallet lnbits || bitcoin-cli-sim loadwallet lnbits
   echo "mining 150 blocks..."
@@ -87,12 +92,12 @@ lnbits-bitcoin-init(){
 }
 
 cashu-regtest-init(){
-  lnbits-bitcoin-init
-  lnbits-lightning-sync
-  lnbits-lightning-init
+  cashu-bitcoin-init
+  cashu-lightning-sync
+  cashu-lightning-init
 }
 
-lnbits-lightning-sync(){
+cashu-lightning-sync(){
   wait-for-clightning-sync 1
   wait-for-clightning-sync 2
   wait-for-clightning-sync 3
@@ -101,7 +106,7 @@ lnbits-lightning-sync(){
   wait-for-lnd-sync 3
 }
 
-lnbits-lightning-init(){
+cashu-lightning-init(){
 
   # create 10 UTXOs for each node
   for i in 0 1 2; do
@@ -116,7 +121,7 @@ lnbits-lightning-init(){
   echo "mining 3 blocks..."
   bitcoin-cli-sim -generate 3 > /dev/null
 
-  lnbits-lightning-sync
+  cashu-lightning-sync
 
   channel_confirms=6
   channel_size=24000000 # 0.024 btc
@@ -183,7 +188,12 @@ lnbits-lightning-init(){
   wait-for-clightning-channel 2
   wait-for-clightning-channel 3
 
-  lnbits-lightning-sync
+  # create rune for each clightning node
+  clightning_create_rune 1
+  clightning_create_rune 2
+  clightning_create_rune 3
+
+  cashu-lightning-sync
 
 }
 
