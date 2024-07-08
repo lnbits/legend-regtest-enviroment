@@ -1,0 +1,20 @@
+name: regtest
+
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  regtest:
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Regtest
+        run: |
+          chmod -R 777 .
+          bash ./start.sh
