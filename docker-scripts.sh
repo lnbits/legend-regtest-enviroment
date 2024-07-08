@@ -86,7 +86,10 @@ cashu-regtest-restart(){
 
 cashu-bitcoin-init(){
   echo "init_bitcoin_wallet..."
-  bitcoin-cli-sim createwallet cashu || bitcoin-cli-sim loadwallet cashu
+  for i in $(seq 1 10); do
+    bitcoin-cli-sim createwallet cashu && break  || sleep 1
+  done
+  bitcoin-cli-sim loadwallet cashu
   echo "mining 150 blocks..."
   bitcoin-cli-sim -generate 150 > /dev/null
 }
