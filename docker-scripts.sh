@@ -2,7 +2,7 @@
 export COMPOSE_PROJECT_NAME=regtest
 
 bitcoin-cli-sim() {
-  docker exec regtest-bitcoind-1 bitcoin-cli -rpcuser=regtest -rpcpassword=regtest -regtest "$@"
+  docker exec regtest-bitcoind-1 bitcoin-cli --rpccookiefile=/root/.bitcoin/regtest/.cookie -regtest "$@"
 }
 
 elements-cli-sim() {

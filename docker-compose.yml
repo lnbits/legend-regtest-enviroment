@@ -15,6 +15,8 @@ services:
       - ./data/lnd-2:/data/lnd/
       - ./data/boltz/:/root/.boltz/
       - ./data/elements/:/root/.elements/
+    volumes_from:
+      - bitcoind:ro
 
   boltz-client:
     hostname: boltz-client
@@ -51,13 +53,12 @@ services:
       - -txindex
       - -rpcallowip=0.0.0.0/0
       - -rpcbind=0.0.0.0
-      - -rpcuser=regtest
-      - -rpcpassword=regtest
     expose:
-      - 29000
-      - 29001
-      - 18443
       - 18444
+    ports:
+      - 18443:18443
+      - 29000:29000
+      - 29001:29001
     volumes:
       - ./data/bitcoin:/root/.bitcoin
 
@@ -68,10 +69,11 @@ services:
     depends_on:
       - bitcoind
     expose:
-      - 18884
-      - 31000
       - 31001
-      - 31002
+    ports:
+      - 31000:31000
+      - 31002:31002
+      - 18884:18884
     volumes:
       - ./data/elements/elements.conf:/home/elements/.elements/elements.conf
 
@@ -88,8 +90,6 @@ services:
       - --bind-addr=0.0.0.0:9735
       - --bitcoin-rpcconnect=bitcoind
       - --bitcoin-rpcport=18443
-      - --bitcoin-rpcuser=regtest
-      - --bitcoin-rpcpassword=regtest
       - --grpc-port=9736
       - --dev-bitcoind-poll=3
       - --dev-fast-gossip
@@ -101,6 +101,8 @@ services:
       - 9736:9736
     volumes:
       - ./data/clightning-1:/root/.lightning/
+    volumes_from:
+      - bitcoind:ro
 
   clightning-2:
     hostname: clightning-2
@@ -115,8 +117,6 @@ services:
       - --bind-addr=0.0.0.0:9735
       - --bitcoin-rpcconnect=bitcoind
       - --bitcoin-rpcport=18443
-      - --bitcoin-rpcuser=regtest
-      - --bitcoin-rpcpassword=regtest
       - --grpc-port=9736
       - --dev-bitcoind-poll=3
       - --dev-fast-gossip
@@ -127,6 +127,8 @@ services:
       - 9736
     volumes:
       - ./data/clightning-2:/root/.lightning/
+    volumes_from:
+      - bitcoind:ro
 
   lnd-1:
     hostname: lnd-1
@@ -144,8 +146,7 @@ services:
       - --bitcoind.rpchost=bitcoind
       - --bitcoind.zmqpubrawtx=bitcoind:29000
       - --bitcoind.zmqpubrawblock=bitcoind:29001
-      - --bitcoind.rpcuser=regtest
-      - --bitcoind.rpcpass=regtest
+      - --bitcoind.rpccookie=/root/.bitcoin/regtest/.cookie
       - --noseedbackup
       - --protocol.wumbo-channels
     expose:
@@ -157,6 +158,8 @@ services:
       - 10009:10009
     volumes:
       - ./data/lnd-1:/root/.lnd/
+    volumes_from:
+      - bitcoind:ro
 
   lnd-2:
     hostname: lnd-2
@@ -174,16 +177,18 @@ services:
       - --bitcoind.rpchost=bitcoind
       - --bitcoind.zmqpubrawtx=bitcoind:29000
       - --bitcoind.zmqpubrawblock=bitcoind:29001
-      - --bitcoind.rpcuser=regtest
-      - --bitcoind.rpcpass=regtest
+      - --bitcoind.rpccookie=/root/.bitcoin/regtest/.cookie
       - --noseedbackup
       - --protocol.wumbo-channels
     expose:
       - 8081
       - 9735
-      - 10009
+    ports:
+      - 11009:10009
     volumes:
       - ./data/lnd-2:/root/.lnd/
+    volumes_from:
+      - bitcoind:ro
 
   electrs:
     hostname: electrs
@@ -197,10 +202,6 @@ services:
       - electrs:3002
       - --daemon-rpc-addr
       - bitcoind:18443
-      - --daemon-dir
-      - /home/elements/.elements
-      - --cookie
-      - regtest:regtest
       - --network
       - regtest
       - --jsonrpc-import
@@ -209,7 +210,7 @@ services:
       - 19001:19001
       - 3002:3002
     volumes:
-      - ./data/elements:/home/elements/.elements
+      - ./data/bitcoin:/app/.bitcoin
 
   electrs-liquid:
     hostname: electrs-liquid

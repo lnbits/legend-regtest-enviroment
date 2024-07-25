@@ -12,3 +12,6 @@ data/boltz/*
 !data/boltz-client
 data/boltz-client/*
 !data/boltz-client/boltz.toml
+
+# Editor config
+.idea/
