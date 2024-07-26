@@ -2,12 +2,13 @@ services:
   boltz:
     hostname: boltz
     depends_on:
+      - db
       - lnd-2
       - elementsd
       - bitcoind
       - anvil
     restart: always
-    image: boltz/boltz:latest
+    image: boltz/boltz:v3.7.2
     ports:
       - 9000:9000
       - 9001:9001
@@ -32,6 +33,17 @@ services:
       - ./data/clightning-2:/root/.lightning/
       - ./data/boltz-client/:/root/.boltz/
       - ./data/elements/:/root/.elements/
+
+  db:
+    hostname: postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: boltz
+      POSTGRES_PASSWORD: boltz
+      POSTGRES_DB: boltz
+    expose:
+      - 5432:5432
 
   anvil:
     hostname: anvil

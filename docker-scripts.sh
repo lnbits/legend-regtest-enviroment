@@ -10,7 +10,7 @@ elements-cli-sim() {
 }
 
 boltzcli-sim() {
-  docker exec -it regtest-boltz-client-1 boltzcli "$@"
+  docker exec -it regtest-boltz-client-1 boltzcli --no-macaroons --host boltz-client --port 9002 "$@"
 }
 
 bitcoin-address() {
@@ -121,7 +121,6 @@ elements-init(){
 
 boltz-client-init(){
   boltzcli-sim wallet create lnbits LBTC
-  boltzcli-sim formatmacaroon
 }
 
 regtest-init(){
