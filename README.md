@@ -1,12 +1,9 @@
-![TESTS](https://github.com/lnbits/legend-regtest-enviroment/actions/workflows/ci.yml/badge.svg)
+![TESTS](https://github.com/BoltzExchange/legend-regtest-enviroment/actions/workflows/ci.yml/badge.svg)
 
 # nodes
-* lnd-1: for locally testing your current lnbits
+* lnd-1: for locally testing
 * lnd-2: used for boltz backend
-* lnd-3: used for lnbits inside docker
-* cln-1: for locally testing your current lnbits
-* cln-2: used for clightning-REST
-* eclair-1: for locally testing your current lnbits
+* cln-1: for locally testing
 
 # Installing regtest
 get the regtest enviroment ready
@@ -65,6 +62,9 @@ source docker-scripts.sh
 # use bitcoin core, mine a block
 bitcoin-cli-sim -generate 1
 
+# use elements, mine a liquid block
+bitcoin-cli-sim -generate 1
+
 # use c-lightning nodes
 lightning-cli-sim 1 newaddr | jq -r '.bech32' # use node 1
 lightning-cli-sim 2 getinfo # use node 2
@@ -76,10 +76,8 @@ lncli-sim 2 listpeers
 ```
 
 # urls
-* mempool: http://localhost:8080/
 * boltz api: http://localhost:9001/
 * lnd-1 rest: http://localhost:8081/
-* lnbits: http://localhost:5001/
 
 # debugging docker logs
 ```sh

@@ -7,7 +7,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run tests
         run: |
-          git clone https://github.com/lnbits/lnbits-legend.git
-          docker build -t lnbitsdocker/lnbits-legend lnbits-legend
-          chmod +x ./tests
-          ./tests
+          chmod +x ./regtest
+          ./regtest
