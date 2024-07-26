@@ -6,11 +6,9 @@ services:
     image: lnbits/lnbits
     restart: on-failure
     user: "0:0"
-    entrypoint: "sh -c 'sleep 30; poetry run lnbits'"
     environment:
-      HOST: lnbits
-      PORT: 5001
-      DEBUG: true
+      LNBITS_HOST: lnbits
+      LNBITS_PORT: 5001
       LNBITS_BACKEND_WALLET_CLASS: "LndRestWallet"
       LNBITS_DATA_FOLDER: "./data"
       LND_REST_ENDPOINT: "https://lnd-3:8081/"
@@ -25,7 +23,7 @@ services:
   bitcoind:
     hostname: bitcoind
     restart: always
-    image: boltz/bitcoin-core:24.0.1
+    image: boltz/bitcoin-core:27.1
     command:
       - -regtest
       - -fallbackfee=0.00000253
@@ -34,6 +32,13 @@ services:
       - -txindex
       - -rpcallowip=0.0.0.0/0
       - -rpcbind=0.0.0.0
+      # eclair
+      # - -rpcuser=lnbits
+      # - -rpcpassword=lnbits
+      # - -dbcache=2048
+      # - -rpcworkqueue=128
+      # - -rpcclienttimeout=30
+
     expose:
       - 18444
     ports:
@@ -57,6 +62,8 @@ services:
       - 18884:18884
     volumes:
       - ./data/elements/elements.conf:/home/elements/.elements/elements.conf
+    volumes_from:
+      - bitcoind:ro
 
   clightning-1:
     hostname: clightning-1
@@ -87,17 +94,28 @@ services:
 
   clightning-2:
     hostname: clightning-2
-    restart: always
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:22.11.1
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9737 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
+    image: boltz/c-lightning:23.08.1
+    command:
+      - --large-channels
+      - --network
+      - regtest
+      - --bind-addr=0.0.0.0:9735
+      - --bitcoin-rpcconnect=bitcoind
+      - --bitcoin-rpcport=18443
+      - --grpc-port=9736
+      - --dev-bitcoind-poll=3
+      - --dev-fast-gossip
+      - --experimental-offers
+      - --experimental-dual-fund
     expose:
       - 9735
-    ports:
-      - 9737:9737
+      - 9736
     volumes:
       - ./data/clightning-2:/root/.lightning/
+    volumes_from:
+      - bitcoind:ro
 
   clightning-2-rest:
     hostname: clightning-2-rest
@@ -134,7 +152,7 @@ services:
       - 9735
       - 9736
     volumes:
-      - ./data/clightning-2:/root/.lightning/
+      - ./data/clightning-3:/root/.lightning/
     volumes_from:
       - bitcoind:ro
 
@@ -161,9 +179,6 @@ services:
       - 8081
       - 9735
       - 10009
-    ports:
-      - 8081:8081
-      - 10009:10009
     volumes:
       - ./data/lnd-1:/root/.lnd/
     volumes_from:
@@ -191,10 +206,11 @@ services:
     expose:
       - 8081
       - 9735
-    ports:
-      - 11009:10009
+      - 10009
     volumes:
       - ./data/lnd-2:/root/.lnd/
+    volumes_from:
+      - bitcoind:ro
 
   lnd-3:
     hostname: lnd-3
@@ -202,31 +218,45 @@ services:
       - bitcoind
     image: boltz/lnd:0.17.4-beta
     restart: on-failure
-    entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-3:9735 --rpclisten=lnd-3:10009 --restlisten=lnd-3:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
-    ports:
-      - 8081:8081
-      - 10009:10009
+    command:
+      - --listen=lnd-3:9735
+      - --rpclisten=lnd-3:10009
+      - --restlisten=lnd-3:8081
+      - --bitcoin.active
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind
+      - --bitcoind.zmqpubrawtx=bitcoind:29000
+      - --bitcoind.zmqpubrawblock=bitcoind:29001
+      - --bitcoind.rpccookie=/root/.bitcoin/regtest/.cookie
+      - --noseedbackup
+      - --protocol.wumbo-channels
     expose:
       - 8081
       - 9735
       - 10009
+    ports:
+      - 8081:8081
+      - 10009:10009
     volumes:
       - ./data/lnd-3:/root/.lnd/
+    volumes_from:
+      - bitcoind:ro
 
-  eclair:
-    hostname: eclair
-    depends_on:
-      - bitcoind
-    image: boltz/eclair:0.8.0
-    restart: on-failure
-    entrypoint: "sh -c 'JAVA_OPTS=-Xmx512m /eclair-node/bin/eclair-node.sh -Declair.datadir=/root/eclair -Declair.printToConsole'"
-    ports:
-      - 8082:8080
-    expose:
-      - 9735
-      - 8080
-    volumes:
-      - ./data/eclair:/root/eclair
+  # eclair:
+  #   hostname: eclair
+  #   depends_on:
+  #     - bitcoind
+  #   image: boltz/eclair:0.8.0
+  #   restart: on-failure
+  #   entrypoint: "sh -c 'JAVA_OPTS=-Xmx512m /eclair-node/bin/eclair-node.sh -Declair.datadir=/root/eclair -Declair.printToConsole'"
+  #   ports:
+  #     - 8082:8080
+  #   expose:
+  #     - 9735
+  #     - 8080
+  #   volumes:
+  #     - ./data/eclair:/root/eclair
 
   boltz:
     hostname: boltz
@@ -325,5 +355,3 @@ services:
 
 volumes:
   lnbits-data:
-    volumes_from:
-      - bitcoind:ro

@@ -120,9 +120,9 @@ regtest-start-log(){
 regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/lnd-1  ./data/lnd-2 ./data/boltz/boltz.db ./data/elements/liquidregtest ./data/bitcoin/regtest
+  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/boltz/boltz.db ./data/elements/liquidregtest ./data/bitcoin/regtest
   # recreate lightning node data folders preventing permission errors
-  mkdir ./data/clightning-1 ./data/clightning-2 ./data/lnd-1 ./data/lnd-2
+  mkdir ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3
 }
 
 regtest-restart(){
@@ -159,14 +159,18 @@ elements-init(){
 }
 
 boltz-client-init(){
-  boltzcli-sim wallet create lnbits LBTC
+  echo "boltz-client-init..."
+  # boltzcli-sim wallet create lnbits LBTC
+  # boltzcli-sim formatmacaroon
 }
 
 lightning-sync(){
   wait-for-clightning-sync 1
   wait-for-clightning-sync 2
+  wait-for-clightning-sync 3
   wait-for-lnd-sync 1
   wait-for-lnd-sync 2
+  wait-for-lnd-sync 3
 }
 
 lightning-init(){
@@ -174,8 +178,10 @@ lightning-init(){
   for i in 0 1 2; do
     fund_clightning_node 1
     fund_clightning_node 2
+    fund_clightning_node 3
     fund_lnd_node 1
     fund_lnd_node 2
+    fund_lnd_node 3
   done
 
   echo "mining 3 blocks..."
@@ -246,24 +252,25 @@ lightning-init(){
   bitcoin-cli-sim -generate $channel_confirms > /dev/null
   wait-for-lnd-channel 3
 
-  # lnd-1 -> eclair-1
-  lncli-sim 1 connect $(get-eclair-pubkey)@lnbits-eclair-1 > /dev/null
-  echo "open channel from lnd-2 to eclair-1"
-  lncli-sim 1 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
-  bitcoin-cli-sim -generate $channel_confirms > /dev/null
-  wait-for-lnd-channel 1
+  # # lnd-1 -> eclair-1
+  # lncli-sim 1 connect $(get-eclair-pubkey)@lnbits-eclair-1 > /dev/null
+  # echo "open channel from lnd-2 to eclair-1"
+  # lncli-sim 1 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
+  # bitcoin-cli-sim -generate $channel_confirms > /dev/null
+  # wait-for-lnd-channel 1
 
-  # lnd-2 -> eclair-1
-  lncli-sim 2 connect $(get-eclair-pubkey)@lnbits-eclair-1 > /dev/null
-  echo "open channel from lnd-2 to eclair-1"
-  lncli-sim 2 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
-  bitcoin-cli-sim -generate $channel_confirms > /dev/null
-  wait-for-lnd-channel 2
+  # # lnd-2 -> eclair-1
+  # lncli-sim 2 connect $(get-eclair-pubkey)@lnbits-eclair-1 > /dev/null
+  # echo "open channel from lnd-2 to eclair-1"
+  # lncli-sim 2 openchannel $(get-eclair-pubkey) $channel_size $balance_size > /dev/null
+  # bitcoin-cli-sim -generate $channel_confirms > /dev/null
+  # wait-for-lnd-channel 2
 
   wait-for-clightning-channel 1
   wait-for-clightning-channel 2
+  wait-for-clightning-channel 3
 
-  wait-for-eclair-channel
+  # wait-for-eclair-channel
 
   lightning-sync
 }
