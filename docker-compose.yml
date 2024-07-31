@@ -96,7 +96,7 @@ services:
     hostname: clightning-2
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:23.08.1
+    image: boltz/c-lightning:22.11.1
     command:
       - --large-channels
       - --network
