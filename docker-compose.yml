@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   lnbits:
     hostname: lnbits
@@ -38,7 +37,7 @@ services:
     hostname: clightning-1
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:24.02.2
+    image: boltz/c-lightning:24.05
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9736 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
@@ -51,7 +50,7 @@ services:
     hostname: clightning-2
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:22.11.1
+    image: boltz/c-lightning:24.05
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9737 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
@@ -78,7 +77,7 @@ services:
     hostname: clightning-3
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:23.08.1
+    image: boltz/c-lightning:24.05
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
     expose:
       - 9735
