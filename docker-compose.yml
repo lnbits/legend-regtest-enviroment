@@ -14,7 +14,7 @@ services:
     hostname: clightning-1
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:24.05
+    image: boltz/c-lightning:24.08
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu --clnrest-port=3010 --clnrest-host=0.0.0.0'"
     expose:
       - 9735
@@ -25,7 +25,7 @@ services:
     hostname: clightning-2
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:24.05
+    image: boltz/c-lightning:24.08
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu --clnrest-port=3010 --clnrest-host=0.0.0.0'"
     ports:
       - 3010:3010
@@ -53,7 +53,7 @@ services:
     hostname: clightning-3
     depends_on:
       - bitcoind
-    image: boltz/c-lightning:24.05
+    image: boltz/c-lightning:24.08
     entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=cashu --bitcoin-rpcpassword=cashu  --clnrest-port=3010 --clnrest-host=0.0.0.0'"
     expose:
       - 9735
