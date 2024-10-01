@@ -11,6 +11,7 @@ services:
       HOST: lnbits
       PORT: 5001
       DEBUG: true
+      LNBITS_ADMIN_UI: false
       LNBITS_BACKEND_WALLET_CLASS: "LndRestWallet"
       LNBITS_DATA_FOLDER: "./data"
       LND_REST_ENDPOINT: "https://lnd-3:8081/"
