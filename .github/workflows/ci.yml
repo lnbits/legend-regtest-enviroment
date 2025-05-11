@@ -12,6 +12,9 @@ jobs:
   regtest:
     runs-on: "ubuntu-latest"
     timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v3
       - name: Setup Regtest

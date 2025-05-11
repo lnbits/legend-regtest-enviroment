@@ -1,0 +1,10 @@
+# Git
+.git
+.github
+
+# Data folders that should be generated at runtime
+data/*
+
+# Misc
+.DS_Store
+**/.DS_Store 
