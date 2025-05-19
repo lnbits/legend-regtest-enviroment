@@ -1,4 +1,5 @@
 services:
+
   lnbits:
     hostname: lnbits
     depends_on:
@@ -26,39 +27,80 @@ services:
   bitcoind:
     hostname: bitcoind
     image: boltz/bitcoin-core:25.0
-    command: "-regtest -fallbackfee=0.00000253 -zmqpubrawtx=tcp://0.0.0.0:29000 -zmqpubrawblock=tcp://0.0.0.0:29001 -zmqpubhashblock=tcp://0.0.0.0:29002 -txindex -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=lnbits -rpcpassword=lnbits -addresstype=bech32 -changetype=bech32 -dbcache=2048 -rpcworkqueue=256"
+    command:
+      - -regtest
+      - -fallbackfee=0.00000253
+      - -zmqpubrawtx=tcp://0.0.0.0:29000
+      - -zmqpubrawblock=tcp://0.0.0.0:29001
+      - -zmqpubhashblock=tcp://0.0.0.0:29002
+      - -txindex
+      - -rpcallowip=0.0.0.0/0
+      - -rpcbind=0.0.0.0
+      - -addresstype=bech32
+      - -changetype=bech32
+      - -dbcache=2048
+      - -rpcworkqueue=256
+    volumes:
+      - bitcoin-data:/root/.bitcoin
     expose:
       - 29000
       - 29001
       - 29002
       - 18443
       - 18444
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bitcoin-cli",
+          "--rpccookiefile=/root/.bitcoin/regtest/.cookie",
+          "-regtest",
+          "getblockchaininfo",
+        ]
+      timeout: 1s
+      retries: 1
+      interval: 1s
+      start_period: 0s
 
   clightning-1:
     hostname: clightning-1
     depends_on:
       - bitcoind
     image: boltz/c-lightning:24.11
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9736 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
+    command:
+      - --large-channels
+      - --network=regtest
+      - --grpc-port=9736
+      - --bind-addr=0.0.0.0:9735
+      - --bitcoin-rpcconnect=bitcoind
+      - --bitcoin-rpcport=18443
     expose:
       - 9735
     ports:
       - 9736:9736
     volumes:
       - ./data/clightning-1:/root/.lightning/
+      - bitcoin-data:/root/.bitcoin
 
   clightning-2:
     hostname: clightning-2
     depends_on:
       - bitcoind
     image: boltz/c-lightning:22.11.1
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9737 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
+    command:
+      - --large-channels
+      - --network=regtest
+      - --grpc-port=9737
+      - --bind-addr=0.0.0.0:9735
+      - --bitcoin-rpcconnect=bitcoind
+      - --bitcoin-rpcport=18443
     expose:
       - 9735
     ports:
       - 9737:9737
     volumes:
       - ./data/clightning-2:/root/.lightning/
+      - bitcoin-data:/root/.bitcoin
 
   clightning-2-rest:
     hostname: clightning-2-rest
@@ -73,19 +115,27 @@ services:
     volumes:
       - ./data/clightning-2:/root/.lightning/:uid=1000,gid=1000
       - ./data/clightning-2-rest:/usr/src/app/certs/
+      - bitcoin-data:/root/.bitcoin
 
   clightning-3:
     hostname: clightning-3
     depends_on:
       - bitcoind
     image: boltz/c-lightning:24.11
-    entrypoint: "sh -c 'sleep 15 && lightningd --large-channels --network regtest --grpc-port 9738 --bind-addr=0.0.0.0:9735 --bitcoin-rpcconnect=bitcoind --bitcoin-rpcport=18443 --bitcoin-rpcuser=lnbits --bitcoin-rpcpassword=lnbits'"
+    command:
+      - --large-channels
+      - --network=regtest
+      - --grpc-port=9738
+      - --bind-addr=0.0.0.0:9735
+      - --bitcoin-rpcconnect=bitcoind
+      - --bitcoin-rpcport=18443
     expose:
       - 9735
     ports:
       - 9738:9738
     volumes:
       - ./data/clightning-3:/root/.lightning/
+      - bitcoin-data:/root/.bitcoin
 
   lnd-1:
     hostname: lnd-1
@@ -93,13 +143,26 @@ services:
       - bitcoind
     image: boltz/lnd:0.18.4-beta
     restart: on-failure
-    entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-1:9735 --rpclisten=lnd-1:10009 --restlisten=lnd-1:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
+    command:
+      - --listen=lnd-1:9735
+      - --rpclisten=lnd-1:10009
+      - --restlisten=lnd-1:8081
+      - --bitcoin.active
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind
+      - --bitcoind.rpccookie=/root/.bitcoin/regtest/.cookie
+      - --bitcoind.zmqpubrawtx=bitcoind:29000
+      - --bitcoind.zmqpubrawblock=bitcoind:29001
+      - --noseedbackup
+      - --protocol.wumbo-channels
     expose:
       - 8081
       - 9735
       - 10009
     volumes:
       - ./data/lnd-1:/root/.lnd/
+      - bitcoin-data:/root/.bitcoin
 
   lnd-2:
     hostname: lnd-2
@@ -107,13 +170,26 @@ services:
       - bitcoind
     image: boltz/lnd:0.18.4-beta
     restart: on-failure
-    entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-2:9735 --rpclisten=lnd-2:10009 --restlisten=lnd-2:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
+    command:
+      - --listen=lnd-2:9735
+      - --rpclisten=lnd-2:10009
+      - --restlisten=lnd-2:8081
+      - --bitcoin.active
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind
+      - --bitcoind.rpccookie=/root/.bitcoin/regtest/.cookie
+      - --bitcoind.zmqpubrawtx=bitcoind:29000
+      - --bitcoind.zmqpubrawblock=bitcoind:29001
+      - --noseedbackup
+      - --protocol.wumbo-channels
     expose:
       - 8081
       - 9735
       - 10009
     volumes:
       - ./data/lnd-2:/root/.lnd/
+      - bitcoin-data:/root/.bitcoin
 
   lnd-3:
     hostname: lnd-3
@@ -121,7 +197,19 @@ services:
       - bitcoind
     image: boltz/lnd:0.18.4-beta
     restart: on-failure
-    entrypoint: "sh -c 'sleep 20; lnd --listen=lnd-3:9735 --rpclisten=lnd-3:10009 --restlisten=lnd-3:8081 --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind --bitcoind.rpchost=bitcoind --bitcoind.zmqpubrawtx=bitcoind:29000 --bitcoind.zmqpubrawblock=bitcoind:29001 --bitcoind.rpcuser=lnbits --bitcoind.rpcpass=lnbits --noseedbackup --protocol.wumbo-channels'"
+    command:
+      - --listen=lnd-3:9735
+      - --rpclisten=lnd-3:10009
+      - --restlisten=lnd-3:8081
+      - --bitcoin.active
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind
+      - --bitcoind.rpccookie=/root/.bitcoin/regtest/.cookie
+      - --bitcoind.zmqpubrawtx=bitcoind:29000
+      - --bitcoind.zmqpubrawblock=bitcoind:29001
+      - --noseedbackup
+      - --protocol.wumbo-channels
     ports:
       - 8081:8081
       - 10009:10009
@@ -131,6 +219,7 @@ services:
       - 10009
     volumes:
       - ./data/lnd-3:/root/.lnd/
+      - bitcoin-data:/root/.bitcoin
 
   eclair:
     hostname: eclair
@@ -146,6 +235,35 @@ services:
       - 8080
     volumes:
       - ./data/eclair:/root/eclair
+      - bitcoin-data:/root/.bitcoin
+
+  electrs:
+    hostname: electrs
+    restart: always
+    image: boltz/electrs:latest
+    # entrypoint: ["electrs-bitcoin"]
+    command:
+      - --electrum-rpc-addr
+      - electrs:19001
+      - --http-addr
+      - electrs:3002
+      - --daemon-rpc-addr
+      - bitcoind:18443
+      - --network
+      - regtest
+      - --jsonrpc-import
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s $(hostname):3002/blocks/tip/height"]
+      timeout: 1s
+      retries: 20
+      interval: 2s
+      start_period: 5s
+    ports:
+      - 19001:19001
+      - 3002:3002
+    volumes:
+      - bitcoin-data:/root/.bitcoin
 
 volumes:
   lnbits-data:
+  bitcoin-data:

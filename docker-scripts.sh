@@ -2,7 +2,7 @@
 export COMPOSE_PROJECT_NAME=lnbits
 
 bitcoin-cli-sim() {
-  docker exec lnbits-bitcoind-1 bitcoin-cli -rpcuser=lnbits -rpcpassword=lnbits -regtest "$@"
+  docker exec lnbits-bitcoind-1 bitcoin-cli -regtest "$@"
 }
 
 # args(i, cmd)
