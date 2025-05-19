@@ -241,6 +241,7 @@ services:
     hostname: electrs
     restart: always
     image: boltz/electrs:latest
+    entrypoint: ["electrs-bitcoin"]
     command:
       - --electrum-rpc-addr
       - electrs:19001
