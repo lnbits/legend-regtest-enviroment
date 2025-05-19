@@ -5,6 +5,10 @@ bitcoin-cli-sim() {
   docker exec lnbits-bitcoind-1 bitcoin-cli -regtest "$@"
 }
 
+elements-cli-sim() {
+  docker exec lnbits-elementsd-1 elements-cli -rpcport=18884 -chain=liquidregtest "$@"
+}
+
 # args(i, cmd)
 lightning-cli-sim() {
   i=$1
@@ -111,6 +115,13 @@ lnbits-bitcoin-init(){
   bitcoin-cli-sim -generate 150 > /dev/null
 }
 
+lnbits-elements-init(){
+  echo "init_elements_wallet..."
+  elements-cli-sim createwallet lnbits || elements-cli-sim loadwallet lnbits
+  echo "mining 150 blocks..."
+  elements-cli-sim -generate 150 > /dev/null
+}
+
 lnbits-init(){
   echo "init_lnbits..."
   docker exec lnbits-lnbits-1 poetry run python tools/create_fake_admin.py
@@ -118,6 +129,7 @@ lnbits-init(){
 
 lnbits-regtest-init(){
   lnbits-bitcoin-init
+  lnbits-elements-init
   lnbits-lightning-sync
   lnbits-lightning-init
   lnbits-init
