@@ -241,7 +241,7 @@ services:
     hostname: electrs
     restart: always
     image: boltz/electrs:latest
-    # entrypoint: ["electrs-bitcoin"]
+    entrypoint: ["electrs-bitcoin"]
     command:
       - --electrum-rpc-addr
       - electrs:19001
@@ -264,6 +264,67 @@ services:
     volumes:
       - bitcoin-data:/root/.bitcoin
 
+  elementsd:
+    hostname: elementsd
+    restart: always
+    image: boltz/elements:latest
+    expose:
+      - 31001
+    ports:
+      - 31000:31000
+      - 31002:31002
+      - 18884:18884
+    command:
+    - -chain=liquidregtest
+    - -txindex=1
+    - -rest=1
+    - -server=1
+    - -rpcallowip=0.0.0.0/0
+    - -validatepegin=0
+    - -initialfreecoins=2100000000000000
+    - -fallbackfee=0.000001
+    - -rpcbind=0.0.0.0
+    - -rpcport=18884
+    - -zmqpubrawtx=tcp://0.0.0.0:31000
+    - -zmqpubrawblock=tcp://0.0.0.0:31001
+    - -zmqpubhashblock=tcp://0.0.0.0:31002
+    - -acceptdiscountct=1
+    - -creatediscountct=1
+    volumes:
+      - elements-data:/root/.elements
+
+  electrs-liquid:
+    hostname: electrs-liquid
+    restart: always
+    image: boltz/electrs:latest
+    entrypoint: ["electrs-liquid"]
+    command:
+      - --electrum-rpc-addr
+      - electrs-liquid:19002
+      - --http-addr
+      - electrs-liquid:3003
+      - --daemon-rpc-addr
+      - elementsd:18884
+      - --daemon-dir
+      - /root/.elements
+      - --network
+      - liquidregtest
+      - --parent-network
+      - regtest
+      - --jsonrpc-import
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s $(hostname):3003/blocks/tip/height"]
+      timeout: 15s
+      retries: 20
+      interval: 2s
+      start_period: 5s
+    ports:
+      - 19002:19002
+      - 3003:3003
+    volumes:
+      - elements-data:/root/.elements
+
 volumes:
   lnbits-data:
   bitcoin-data:
+  elements-data:
