@@ -142,6 +142,7 @@ lnbits-lightning-sync(){
   wait-for-lnd-sync 1
   wait-for-lnd-sync 2
   wait-for-lnd-sync 3
+  wait-for-lnd-sync 4
 }
 
 lnbits-lightning-init(){
@@ -154,6 +155,7 @@ lnbits-lightning-init(){
     fund_lnd_node 1
     fund_lnd_node 2
     fund_lnd_node 3
+    fund_lnd_node 4
   done
 
   echo "mining 3 blocks..."

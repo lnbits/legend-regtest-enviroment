@@ -221,6 +221,33 @@ services:
       - ./data/lnd-3:/root/.lnd/
       - bitcoin-data:/root/.bitcoin
 
+  lnd-4:
+    hostname: lnd-4
+    depends_on:
+      - bitcoind
+    image: boltz/lnd:0.18.4-beta
+    restart: on-failure
+    command:
+      - --listen=lnd-4:9735
+      - --rpclisten=lnd-4:10009
+      - --restlisten=lnd-4:8081
+      - --bitcoin.active
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind
+      - --bitcoind.rpccookie=/root/.bitcoin/regtest/.cookie
+      - --bitcoind.zmqpubrawtx=bitcoind:29000
+      - --bitcoind.zmqpubrawblock=bitcoind:29001
+      - --noseedbackup
+      - --protocol.wumbo-channels
+    expose:
+      - 8081
+      - 9735
+      - 10009
+    volumes:
+      - ./data/lnd-4:/root/.lnd/
+      - bitcoin-data:/root/.bitcoin
+
   eclair:
     hostname: eclair
     depends_on:
