@@ -76,7 +76,6 @@ services:
       - --bitcoin-rpcport=18443
       - --clnrest-host=0.0.0.0
       - --clnrest-port=3010
-      - --clnrest-protocol=HTTP
     expose:
       - 9735
     ports:
