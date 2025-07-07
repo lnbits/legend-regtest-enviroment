@@ -74,10 +74,14 @@ services:
       - --bind-addr=0.0.0.0:9735
       - --bitcoin-rpcconnect=bitcoind
       - --bitcoin-rpcport=18443
+      - --clnrest-host=0.0.0.0
+      - --clnrest-port=3010
+      - --clnrest-protocol=HTTP
     expose:
       - 9735
     ports:
       - 9736:9736
+      - 3010:3010
     volumes:
       - ./data/clightning-1:/root/.lightning/
       - bitcoin-data:/root/.bitcoin
