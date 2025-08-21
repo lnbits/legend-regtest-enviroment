@@ -44,7 +44,7 @@ CORELIGHTNING_RPC=./docker/data/clightning-1/regtest/lightning-rpc
 
 
 # Run LNbits
-poetry run lnbits
+uv run lnbits
 
 # Run LNbits with hot reload
 make dev

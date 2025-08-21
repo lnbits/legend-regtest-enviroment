@@ -124,7 +124,7 @@ lnbits-elements-init(){
 
 lnbits-init(){
   echo "init_lnbits..."
-  docker exec lnbits-lnbits-1 poetry run python tools/create_fake_admin.py
+  docker exec lnbits-lnbits-1 uv run python tools/create_fake_admin.py
 }
 
 lnbits-regtest-init(){
