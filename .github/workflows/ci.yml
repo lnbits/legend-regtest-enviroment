@@ -4,10 +4,10 @@ jobs:
   regtest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Run tests
         run: |
-          git clone https://github.com/lnbits/lnbits-legend.git
-          docker build -t lnbitsdocker/lnbits-legend lnbits-legend
+          git clone https://github.com/lnbits/lnbits.git
+          docker build -t lnbits/lnbits lnbits
           chmod +x ./tests
           ./tests
