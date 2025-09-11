@@ -120,6 +120,7 @@ lnbits-elements-init(){
   elements-cli-sim createwallet lnbits || elements-cli-sim loadwallet lnbits
   echo "mining 150 blocks..."
   elements-cli-sim -generate 150 > /dev/null
+  elements-cli-sim rescanblockchain
 }
 
 lnbits-init(){
