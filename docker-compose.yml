@@ -22,6 +22,20 @@ services:
       - lnbits-data:/app/data
       - ./data/lnd-3:/app/lnd:uid=1000,gid=1000
 
+  boltz:
+    hostname: boltz
+    depends_on:
+      - lnd-2
+    restart: always
+    image: boltz/boltz:3.3.0
+    ports:
+      - 9000:9000
+      - 9001:9001
+    entrypoint: "sh -c 'sleep 30; /boltz-backend/bin/boltzd'"
+    volumes:
+      - ./data/lnd-2:/data/lnd/
+      - ./data/boltz/:/root/.boltz/
+
   bitcoind:
     hostname: bitcoind
     image: boltz/bitcoin-core:25.0
