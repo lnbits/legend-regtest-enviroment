@@ -205,7 +205,7 @@ services:
     hostname: lnd-2
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.18.4-beta
+    image: boltz/lnd:0.19.3-beta
     restart: on-failure
     command:
       - --listen=lnd-2:9735
