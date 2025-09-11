@@ -28,7 +28,7 @@ services:
       - lnd-2
       - boltz-postgres
     restart: always
-    image: boltz/boltz:v3.11.0
+    image: boltz/boltz:latest
     ports:
       - 9000:9000
       - 9001:9001
