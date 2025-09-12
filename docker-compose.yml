@@ -22,6 +22,42 @@ services:
       - lnbits-data:/app/data
       - ./data/lnd-3:/app/lnd:uid=1000,gid=1000
 
+  boltz:
+    hostname: boltz
+    depends_on:
+      - lnd-2
+      - boltz-postgres
+    restart: always
+    image: boltz/boltz:latest
+    ports:
+      - 9000:9000
+      - 9001:9001
+    entrypoint: "sh -c 'sleep 30; /boltz-backend/bin/boltzd'"
+    volumes:
+      - ./data/lnd-2:/data/lnd/
+      - ./data/boltz/:/root/.boltz/
+      - elements-data:/root/.elements
+      - bitcoin-data:/root/.bitcoin
+
+  boltz-postgres:
+    hostname: boltz-postgres
+    restart: always
+    image: postgres:14-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --dbname boltz --username boltz"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
+    environment:
+      - POSTGRES_DB=boltz
+      - POSTGRES_USER=boltz
+      - POSTGRES_PASSWORD=boltz
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+
   bitcoind:
     hostname: bitcoind
     image: boltz/bitcoin-core:25.0
@@ -169,7 +205,7 @@ services:
     hostname: lnd-2
     depends_on:
       - bitcoind
-    image: boltz/lnd:0.18.4-beta
+    image: boltz/lnd:0.19.3-beta
     restart: on-failure
     command:
       - --listen=lnd-2:9735
