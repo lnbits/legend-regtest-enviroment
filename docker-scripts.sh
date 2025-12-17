@@ -1,6 +1,10 @@
 #!/bin/sh
 export COMPOSE_PROJECT_NAME=lnbits
 
+boltzcli-sim() {
+  docker exec lnbits-boltz-client-1 boltzcli "$@"
+}
+
 bitcoin-cli-sim() {
   docker exec lnbits-bitcoind-1 bitcoin-cli -regtest "$@"
 }
