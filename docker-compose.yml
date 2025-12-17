@@ -39,6 +39,25 @@ services:
       - elements-data:/root/.elements
       - bitcoin-data:/root/.bitcoin
 
+  boltz-client:
+    hostname: boltz-client
+    depends_on:
+      - boltz
+    restart: always
+    image: boltz/boltz-client:latest
+    ports:
+      - 9002:9002
+      - 9003:9003
+    healthcheck:
+      test: ['CMD', 'boltzcli', '--host', 'boltz-client', 'getinfo']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 0s
+    volumes:
+      - elements-data:/root/.elements
+      - boltz-client-data:/root/.boltz
+
   boltz-postgres:
     hostname: boltz-postgres
     restart: always
