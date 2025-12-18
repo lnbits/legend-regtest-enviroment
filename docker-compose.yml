@@ -33,7 +33,7 @@ services:
       - 9000:9000
       - 9001:9001
     expose:
-      - 9001:9001
+      - 9001
     entrypoint: "sh -c 'sleep 30; /boltz-backend/bin/boltzd'"
     volumes:
       - ./data/lnd-2:/data/lnd/
@@ -51,8 +51,7 @@ services:
       - 9002:9002
       - 9003:9003
     expose:
-      - 9002:9002
-      - 9003:9003
+      - 9002
     healthcheck:
       test: ['CMD', 'boltzcli', '--host', 'boltz-client', 'getinfo']
       interval: 5s
