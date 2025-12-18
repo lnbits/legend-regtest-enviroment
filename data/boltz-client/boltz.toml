@@ -10,7 +10,7 @@ electrumLiquidUrl = "electrs-liquid:19002"
 [BOLTZ]
 # By default the daemon automatically connects to the official Boltz instance for the network LND is on
 # This value is used to override that
-url = "http://boltz:9001"
+url = "http://boltz-nginx:9001"
 
 [DATABASE]
 # Path to the SQLite database file
