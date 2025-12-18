@@ -40,7 +40,7 @@ tlsKey = ""
 noTls = true
 
 # Whether the macaroon authentication for the gRPC and REST interface should be disabled
-noMacaroons = false
+noMacaroons = true
 
 # Path to the admin macaroon for the gRPC and REST interface
 adminMacaroonPath = ""

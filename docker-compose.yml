@@ -47,9 +47,12 @@ services:
       - boltz
     restart: always
     image: boltz/boltz-client:latest
+    ports:
+      - 9002:9002
+      - 9003:9003
     expose:
-      - 9003
-      - 9002
+      - 9002:9002
+      - 9003:9003
     healthcheck:
       test: ['CMD', 'boltzcli', '--host', 'boltz-client', 'getinfo']
       interval: 5s
