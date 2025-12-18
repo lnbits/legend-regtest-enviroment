@@ -17,7 +17,7 @@ url = "http://boltz:9001"
 
 [RPC]
 # Host of
-host = "boltz-client"
+host = "0.0.0.0"
 
 # Port of the gRPC interface
 port = 9002
@@ -26,7 +26,7 @@ port = 9002
 restDisabled = false
 
 # Host of the REST proxy
-restHost = "boltz-client"
+restHost = "0.0.0.0"
 
 # Port of the REST proxy
 restPort = 9003
