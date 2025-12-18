@@ -415,4 +415,3 @@ volumes:
   lnbits-data:
   bitcoin-data:
   elements-data:
-  boltz-client-data:
