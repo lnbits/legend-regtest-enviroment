@@ -2,7 +2,7 @@
 export COMPOSE_PROJECT_NAME=lnbits
 
 boltzcli-sim() {
-  docker exec lnbits-boltz-client-1 boltzcli "$@"
+  docker exec lnbits-boltz-client-1 boltzcli --host "boltz-client" "$@"
 }
 
 bitcoin-cli-sim() {

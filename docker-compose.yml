@@ -48,6 +48,8 @@ services:
     ports:
       - 9002:9002
       - 9003:9003
+    expose:
+      - 9002
     healthcheck:
       test: ['CMD', 'boltzcli', '--host', 'boltz-client', 'getinfo']
       interval: 5s
@@ -57,6 +59,7 @@ services:
     volumes:
       - elements-data:/root/.elements
       - boltz-client-data:/root/.boltz/
+      - ./data/boltz-client/boltz.toml:/root/.boltz/boltz.toml
 
   boltz-postgres:
     hostname: boltz-postgres
