@@ -22,8 +22,8 @@ docker build -t lnbits/lnbits .
 mkdir docker
 git clone https://github.com/lnbits/legend-regtest-enviroment.git docker
 cd docker
-chmod +x ./tests
-./tests # start the regtest and also run tests
+chmod +x ./start-regtest
+./start-regtest # start the regtest and also run tests
 sudo chown -R $USER ./data # Give the data file permissions for user
 ```
 
@@ -52,10 +52,10 @@ make dev
 
 # testing
 ```sh
-chmod +x ./tests
-./tests
+chmod +x ./start-regtest
+./start-regtest
 # short answer :)
-./tests && echo "PASSED" || echo "FAILED" > /dev/null
+./start-regtest && echo "PASSED" || echo "FAILED" > /dev/null
 ```
 
 usage of the `bitcoin-cli-sim`, `lightning-cli-sim` and `lncli-sim` aliases
