@@ -1,4 +1,6 @@
 standalone = true
+network = "regtest"
+loglevel = "debug"
 
 # Path the the log file
 logfile = ""
