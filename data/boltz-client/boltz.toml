@@ -1,6 +1,5 @@
 standalone = true
 network = "regtest"
-loglevel = "debug"
 
 # Path the the log file
 logfile = ""
@@ -38,7 +37,7 @@ tlsCert = ""
 
 # Path to the TLS private key for the gRPC and REST interface
 tlsKey = ""
-noTls = false
+noTls = true
 
 # Whether the macaroon authentication for the gRPC and REST interface should be disabled
 noMacaroons = false

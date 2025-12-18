@@ -32,6 +32,8 @@ services:
     ports:
       - 9000:9000
       - 9001:9001
+    expose:
+      - 9001:9001
     entrypoint: "sh -c 'sleep 30; /boltz-backend/bin/boltzd'"
     volumes:
       - ./data/lnd-2:/data/lnd/
@@ -56,8 +58,7 @@ services:
       start_period: 0s
     volumes:
       - elements-data:/root/.elements
-      - boltz-client-data:/root/.boltz/
-      - ./data/boltz-client/boltz.toml:/root/.boltz/boltz.toml
+      - ./data/boltz-client:/root/.boltz
 
   boltz-postgres:
     hostname: boltz-postgres
