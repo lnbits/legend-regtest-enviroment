@@ -152,7 +152,6 @@ lnbits-regtest-init(){
   lnbits-elements-init
   lnbits-lightning-sync
   lnbits-lightning-init
-  wait-for-boltz-client-sync
   boltz-client-init
   lnbits-init
 }
@@ -277,17 +276,6 @@ wait-for-lnd-channel(){
     if [[ "$pending" == "0" ]]; then
       break
     fi
-    sleep 1
-  done
-}
-
-wait-for-boltz-client-sync(){
-  while true; do
-    if [[ "$(boltzcli-sim getinfo 2>&1 | jq -r '.network' 2> /dev/null)" == "regtest" ]]; then
-      echo "boltz-client is synced!"
-      break
-    fi
-    echo "waiting for boltz-client to sync..."
     sleep 1
   done
 }
