@@ -51,6 +51,14 @@ wait-for-eclair-channel() {
   done
 }
 
+# args(i)
+fund_boltz_client() {
+  # first address of seed: abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
+  address="el1qq2xvpcvfup5j8zscjq05u2wxxjcyewk7979f3mmz5l7uw5pqmx6xf5xy50hsn6vhkm5euwt72x878eq6zxx2z0z676mna6kdq"
+  echo "funding: $address on boltz-client"
+  elements-cli-sim -named sendtoaddress address=$address amount=30 fee_rate=100 > /dev/null
+}
+
 
 # args(i)
 fund_clightning_node() {
@@ -102,7 +110,7 @@ lnbits-regtest-start-log(){
 lnbits-regtest-stop(){
   docker compose down --volumes
   # clean up lightning node data
-  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/lnd-4 ./data/boltz/boltz.db ./data/eclair/regtest
+  sudo rm -rf ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1  ./data/lnd-2 ./data/lnd-3 ./data/lnd-4 ./data/boltz/boltz.db ./data/eclair/regtest ./data/boltz-client/liquid-wallet ./data/boltz-client/bitcoin-wallet ./data/boltz-client/wallet ./data/boltz-client/boltz.db
   # recreate lightning node data folders preventing permission errors
   mkdir ./data/clightning-1 ./data/clightning-2 ./data/clightning-3 ./data/lnd-1 ./data/lnd-2 ./data/lnd-3 ./data/lnd-4
 }
@@ -110,6 +118,13 @@ lnbits-regtest-stop(){
 lnbits-regtest-restart(){
   lnbits-regtest-stop
   lnbits-regtest-start
+}
+
+boltz-client-init(){
+  for i in 0 1 2; do
+    fund_boltz_client
+  done
+  elements-cli-sim -generate 3 > /dev/null
 }
 
 lnbits-bitcoin-init(){
@@ -137,6 +152,8 @@ lnbits-regtest-init(){
   lnbits-elements-init
   lnbits-lightning-sync
   lnbits-lightning-init
+  wait-for-boltz-client-sync
+  boltz-client-init
   lnbits-init
 }
 
@@ -260,6 +277,17 @@ wait-for-lnd-channel(){
     if [[ "$pending" == "0" ]]; then
       break
     fi
+    sleep 1
+  done
+}
+
+wait-for-boltz-client-sync(){
+  while true; do
+    if [[ "$(boltzcli-sim getinfo 2>&1 | jq -r '.network' 2> /dev/null)" == "regtest" ]]; then
+      echo "boltz-client is synced!"
+      break
+    fi
+    echo "waiting for boltz-client to sync..."
     sleep 1
   done
 }
