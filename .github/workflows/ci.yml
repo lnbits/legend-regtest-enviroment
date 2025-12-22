@@ -9,5 +9,5 @@ jobs:
         run: |
           git clone https://github.com/lnbits/lnbits.git
           docker build -t lnbits/lnbits lnbits
-          chmod +x ./tests
-          ./tests
+          chmod +x ./start-regtest
+          ./start-regtest

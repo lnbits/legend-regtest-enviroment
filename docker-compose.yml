@@ -31,13 +31,48 @@ services:
     image: boltz/boltz:latest
     ports:
       - 9000:9000
-      - 9001:9001
     entrypoint: "sh -c 'sleep 30; /boltz-backend/bin/boltzd'"
     volumes:
       - ./data/lnd-2:/data/lnd/
       - ./data/boltz/:/root/.boltz/
       - elements-data:/root/.elements
       - bitcoin-data:/root/.bitcoin
+
+  boltz-client:
+    hostname: boltz-client
+    depends_on:
+      - boltz
+    restart: always
+    image: boltz/boltz-client:latest
+    ports:
+      - 9002:9002
+      - 9003:9003
+    expose:
+      - 9002
+    healthcheck:
+      test: ['CMD', 'boltzcli', '--host', 'boltz-client', 'getinfo']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 0s
+    volumes:
+      - elements-data:/root/.elements
+      - ./data/boltz-client:/root/.boltz
+
+  boltz-backend-nginx:
+    hostname: boltz-nginx
+    restart: always
+    image: nginx:latest
+    ports:
+      - 9001:9001
+    volumes:
+      - nginx-data:/etc/nginx/conf.d
+    healthcheck:
+      test: ['CMD-SHELL', 'curl http://localhost:9001/version']
+      timeout: 1s
+      retries: 10
+      interval: 1s
+      start_period: 0s
 
   boltz-postgres:
     hostname: boltz-postgres
@@ -53,8 +88,6 @@ services:
       - POSTGRES_DB=boltz
       - POSTGRES_USER=boltz
       - POSTGRES_PASSWORD=boltz
-    ports:
-      - 5432:5432
     expose:
       - 5432
 
@@ -392,3 +425,10 @@ volumes:
   lnbits-data:
   bitcoin-data:
   elements-data:
+  nginx-data:
+    name: nginx-data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/boltz-nginx/
